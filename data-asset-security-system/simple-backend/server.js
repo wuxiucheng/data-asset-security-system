@@ -782,7 +782,56 @@ app.get('/api/statistics/asset', (req, res) => {
 });
 
 app.get('/api/statistics/trend', (req, res) => {
-  res.json({ code: 0, data: mockTrendData });
+  const { type, startDate, endDate } = req.query;
+  let filteredData = { ...mockTrendData };
+
+  // 根据类型筛选数据
+  if (type === 'asset') {
+    // 只返回资产相关数据
+    filteredData = {
+      ...mockTrendData,
+      classificationGrowth: mockTrendData.dates.map(() => 0),
+      gradingGrowth: mockTrendData.dates.map(() => 0)
+    };
+  } else if (type === 'classification') {
+    // 只返回分类相关数据
+    filteredData = {
+      ...mockTrendData,
+      assetGrowth: mockTrendData.dates.map(() => 0),
+      gradingGrowth: mockTrendData.dates.map(() => 0)
+    };
+  } else if (type === 'grading') {
+    // 只返回分级相关数据
+    filteredData = {
+      ...mockTrendData,
+      assetGrowth: mockTrendData.dates.map(() => 0),
+      classificationGrowth: mockTrendData.dates.map(() => 0)
+    };
+  }
+
+  // 根据日期范围筛选数据
+  if (startDate && endDate) {
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+
+    const filteredDates = mockTrendData.dates.filter((date) => {
+      const dateObj = new Date(date);
+      return dateObj >= startDateObj && dateObj <= endDateObj;
+    });
+
+    const startIndex = mockTrendData.dates.indexOf(filteredDates[0]);
+    const endIndex = mockTrendData.dates.indexOf(filteredDates[filteredDates.length - 1]) + 1;
+
+    filteredData = {
+      ...filteredData,
+      dates: filteredDates,
+      assetGrowth: mockTrendData.assetGrowth.slice(startIndex, endIndex),
+      classificationGrowth: mockTrendData.classificationGrowth.slice(startIndex, endIndex),
+      gradingGrowth: mockTrendData.gradingGrowth.slice(startIndex, endIndex)
+    };
+  }
+
+  res.json({ code: 0, data: filteredData });
 });
 
 // 健康检查

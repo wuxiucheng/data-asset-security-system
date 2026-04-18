@@ -147,8 +147,8 @@ export interface Department {
 
 export const departmentApi = {
   // 获取部门树
-  getTree() {
-    return http.get<Department[]>('/department/tree')
+  getTree(params?: any) {
+    return http.get<Department[]>('/department/tree', { params })
   },
 
   // 获取部门列表

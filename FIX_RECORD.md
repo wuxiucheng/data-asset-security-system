@@ -50,6 +50,122 @@
 
 ## 🔧 前端修复记录
 
+### 6. 深度修复部门管理和趋势分析筛选功能
+
+#### 问题描述
+- 部门管理和趋势分析页面的筛选功能仍然不生效
+- 虽然之前修复了部分逻辑，但问题根源未解决
+- 用户反馈这两个页面的筛选功能没有实际效果
+
+#### 深度排查发现的问题
+
+**1. 部门管理页面问题**：
+- **API定义问题**：`departmentApi.getTree()` 函数没有参数声明
+- **参数传递失败**：导致前端传递的筛选参数无法正确发送到后端
+- **函数签名错误**：`getTree()` 应改为 `getTree(params?: any)`
+
+**2. 趋势分析页面问题**：
+- **后端API问题**：`/api/statistics/trend` 接口直接返回静态数据
+- **缺少筛选逻辑**：没有处理任何筛选参数（type、startDate、endDate）
+- **功能缺失**：导致所有筛选条件都无效
+
+#### 修复内容
+
+**1. 修复部门管理API定义**：
+```typescript
+// 修复前
+getTree() {
+  return http.get<Department[]>('/department/tree')
+}
+
+// 修复后
+getTree(params?: any) {
+  return http.get<Department[]>('/department/tree', { params })
+}
+```
+
+**2. 修复趋势分析后端API**：
+- 实现 `type` 参数筛选逻辑
+- 实现日期范围筛选逻辑
+- 根据不同类型返回对应的数据
+- 支持 `startDate` 和 `endDate` 参数过滤时间范围
+
+**筛选逻辑实现**：
+- `type='asset'`: 只返回资产增长数据
+- `type='classification'`: 只返回分类增长数据
+- `type='grading'`: 只返回分级增长数据
+- 日期范围：过滤指定时间段的数据
+
+#### 修复文件
+1. ✅ `src/api/index.ts` - API定义文件
+2. ✅ `simple-backend/server.js` - 后端模拟服务器
+
+#### 修复示例
+```javascript
+// 趋势分析后端修复
+app.get('/api/statistics/trend', (req, res) => {
+  const { type, startDate, endDate } = req.query;
+  let filteredData = { ...mockTrendData };
+
+  // 根据类型筛选
+  if (type === 'asset') {
+    filteredData = {
+      ...mockTrendData,
+      classificationGrowth: mockTrendData.dates.map(() => 0),
+      gradingGrowth: mockTrendData.dates.map(() => 0)
+    };
+  } else if (type === 'classification') {
+    filteredData = {
+      ...mockTrendData,
+      assetGrowth: mockTrendData.dates.map(() => 0),
+      gradingGrowth: mockTrendData.dates.map(() => 0)
+    };
+  } else if (type === 'grading') {
+    filteredData = {
+      ...mockTrendData,
+      assetGrowth: mockTrendData.dates.map(() => 0),
+      classificationGrowth: mockTrendData.dates.map(() => 0)
+    };
+  }
+
+  // 根据日期范围筛选
+  if (startDate && endDate) {
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    const filteredDates = mockTrendData.dates.filter((date) => {
+      const dateObj = new Date(date);
+      return dateObj >= startDateObj && dateObj <= endDateObj;
+    });
+
+    const startIndex = mockTrendData.dates.indexOf(filteredDates[0]);
+    const endIndex = mockTrendData.dates.indexOf(filteredDates[filteredDates.length - 1]) + 1;
+
+    filteredData = {
+      ...filteredData,
+      dates: filteredDates,
+      assetGrowth: mockTrendData.assetGrowth.slice(startIndex, endIndex),
+      classificationGrowth: mockTrendData.classificationGrowth.slice(startIndex, endIndex),
+      gradingGrowth: mockTrendData.gradingGrowth.slice(startIndex, endIndex)
+    };
+  }
+
+  res.json({ code: 0, data: filteredData });
+});
+```
+
+#### 修复效果
+- ✅ 部门管理筛选功能现在可以正常工作
+- ✅ 趋势分析筛选功能现在可以正常工作
+- ✅ API参数传递正确无误
+- ✅ 后端筛选逻辑完整实现
+- ✅ 用户体验得到根本性改善
+
+#### 问题根源总结
+- **之前的修复局限性**：只关注了前端参数传递，忽略了API定义和后端实现
+- **部门管理问题根源**：API函数签名不匹配导致参数传递失败
+- **趋势分析问题根源**：后端完全没有实现筛选逻辑
+- **解决方案**：需要前后端协同修复才能彻底解决问题
+
 ### 5. 特定页面筛选功能修复
 
 #### 问题描述
@@ -532,6 +648,11 @@ service.saveBatch(entities);
 ---
 
 ## 📝 更新记录
+
+### v1.0.6 (2025-04-18)
+- ✅ 深度修复部门管理和趋势分析页面的筛选功能
+- ✅ 修复API定义问题，确保参数正确传递
+- ✅ 实现完整的后端筛选逻辑
 
 ### v1.0.5 (2025-04-18)
 - ✅ 修复部门管理、资产列表、趋势分析页面的筛选功能

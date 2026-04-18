@@ -158,7 +158,12 @@ const formRules = {
 const getDepartmentTree = async () => {
   loading.value = true
   try {
-    const res = await departmentApi.getTree()
+    // 过滤空值参数
+    const params: any = {}
+    if (searchForm.departmentName) params.departmentName = searchForm.departmentName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await departmentApi.getTree(params)
     tableData.value = res.data
     departmentTree.value = res.data
   } catch (error) {

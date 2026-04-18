@@ -261,9 +261,15 @@ const handleExport = async () => {
 // 获取趋势数据
 const getTrendData = async () => {
   try {
-    const res = await statisticsApi.getTrendData(filterForm)
+    // 过滤空值参数
+    const params: any = {}
+    if (filterForm.type) params.type = filterForm.type
+    if (filterForm.startDate) params.startDate = filterForm.startDate
+    if (filterForm.endDate) params.endDate = filterForm.endDate
+
+    const res = await statisticsApi.getTrendData(params)
     const data = res.data
-    
+
     // 更新统计数据
     if (data.assetGrowth && data.assetGrowth.length > 0) {
       totalAssets.value = data.assetGrowth[data.assetGrowth.length - 1]
@@ -271,21 +277,21 @@ const getTrendData = async () => {
       const lastAsset = data.assetGrowth[data.assetGrowth.length - 1] || 0
       assetTrend.value = firstAsset > 0 ? ((lastAsset - firstAsset) / firstAsset * 100).toFixed(1) as any : 0
     }
-    
+
     if (data.classificationGrowth && data.classificationGrowth.length > 0) {
       totalClassifications.value = data.classificationGrowth[data.classificationGrowth.length - 1]
       const firstClassification = data.classificationGrowth[0] || 0
       const lastClassification = data.classificationGrowth[data.classificationGrowth.length - 1] || 0
       classificationTrend.value = firstClassification > 0 ? ((lastClassification - firstClassification) / firstClassification * 100).toFixed(1) as any : 0
     }
-    
+
     if (data.gradingGrowth && data.gradingGrowth.length > 0) {
       totalGradings.value = data.gradingGrowth[data.gradingGrowth.length - 1]
       const firstGrading = data.gradingGrowth[0] || 0
       const lastGrading = data.gradingGrowth[data.gradingGrowth.length - 1] || 0
       gradingTrend.value = firstGrading > 0 ? ((lastGrading - firstGrading) / firstGrading * 100).toFixed(1) as any : 0
     }
-    
+
     // 更新表格数据
     tableData.value = data.dates.map((date: string, index: number) => ({
       date,

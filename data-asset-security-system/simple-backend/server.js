@@ -346,7 +346,17 @@ app.get('/api/permission/list', (req, res) => {
 
 // 部门管理
 app.get('/api/department/tree', (req, res) => {
-  res.json({ code: 0, data: mockDepartments });
+  const { departmentName, status } = req.query;
+  let filteredDepartments = [...mockDepartments];
+
+  if (departmentName) {
+    filteredDepartments = filteredDepartments.filter(d => d.departmentName.includes(departmentName));
+  }
+  if (status) {
+    filteredDepartments = filteredDepartments.filter(d => d.status === status);
+  }
+
+  res.json({ code: 0, data: filteredDepartments });
 });
 
 app.get('/api/department/list', (req, res) => {
@@ -698,20 +708,26 @@ app.delete('/api/grading/delete/:gradingId', (req, res) => {
 
 // 数据资产管理
 app.get('/api/asset/list', (req, res) => {
-  const { pageNum = 1, pageSize = 10, assetName, status } = req.query;
+  const { pageNum = 1, pageSize = 10, assetName, assetCode, assetType, status } = req.query;
   let filteredAssets = [...mockAssets];
-  
+
   if (assetName) {
     filteredAssets = filteredAssets.filter(a => a.assetName.includes(assetName));
+  }
+  if (assetCode) {
+    filteredAssets = filteredAssets.filter(a => a.assetCode.includes(assetCode));
+  }
+  if (assetType) {
+    filteredAssets = filteredAssets.filter(a => a.assetType === assetType);
   }
   if (status) {
     filteredAssets = filteredAssets.filter(a => a.status === status);
   }
-  
+
   const start = (pageNum - 1) * pageSize;
   const end = start + parseInt(pageSize);
   const list = filteredAssets.slice(start, end);
-  
+
   res.json({
     code: 0,
     data: {

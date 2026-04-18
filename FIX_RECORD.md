@@ -50,6 +50,85 @@
 
 ## 🔧 前端修复记录
 
+### 4. 筛选查询功能修复
+
+#### 问题描述
+- 所有前端页面的筛选功能都不生效
+- 用户选择筛选条件后点击查询，结果没有变化
+- 影响用户体验，无法准确查找所需数据
+
+#### 问题原因
+1. **参数传递不当**：使用展开运算符 `...searchForm` 直接传递整个表单对象
+2. **包含空值**：空字符串和undefined值也被传递给后端API
+3. **逻辑不清晰**：参数构建过程不够明确，影响代码维护
+
+#### 修复内容
+1. **移除展开运算符**：不再使用 `...searchForm` 直接传递所有参数
+2. **显式构建参数**：手动构建参数对象，只包含有值的筛选条件
+3. **过滤空值**：使用条件判断过滤掉空字符串和undefined值
+4. **保持分页参数**：确保分页参数始终正确传递
+
+#### 修复文件
+1. ✅ `src/views/role/index.vue` - 角色管理页面
+2. ✅ `src/views/user/index.vue` - 用户管理页面
+3. ✅ `src/views/asset/index.vue` - 资产管理页面
+4. ✅ `src/views/classification/index.vue` - 数据分类管理页面
+5. ✅ `src/views/grading/index.vue` - 数据分级管理页面
+6. ✅ `src/views/classification-standard/index.vue` - 分类标准管理页面
+7. ✅ `src/views/grading-standard/index.vue` - 分级标准管理页面
+8. ✅ `src/views/owner/index.vue` - 责任人管理页面
+9. ✅ `src/views/permission/index.vue` - 权限管理页面
+
+#### 修复示例
+```typescript
+// 修复前
+const getRoleList = async () => {
+  loading.value = true
+  try {
+    const res = await roleApi.getList({
+      pageNum: pagination.pageNum,
+      pageSize: pagination.pageSize,
+      ...searchForm  // 包含 roleName: '', status: ''
+    })
+    tableData.value = res.data.list
+    pagination.total = res.data.total
+  } catch (error) {
+    ElMessage.error('获取角色列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 修复后
+const getRoleList = async () => {
+  loading.value = true
+  try {
+    // 过滤空值参数
+    const params: any = {
+      pageNum: pagination.pageNum,
+      pageSize: pagination.pageSize
+    }
+    if (searchForm.roleName) params.roleName = searchForm.roleName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await roleApi.getList(params)
+    tableData.value = res.data.list
+    pagination.total = res.data.total
+  } catch (error) {
+    ElMessage.error('获取角色列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+```
+
+#### 修复效果
+- ✅ 所有筛选功能都能正常工作
+- ✅ 参数传递更加精确和清晰
+- ✅ 代码可读性和维护性得到提升
+- ✅ API调用更加规范和高效
+- ✅ 用户体验显著改善
+
 ### 3. 下拉框选择项显示问题修复
 
 #### 问题描述
@@ -356,6 +435,11 @@ service.saveBatch(entities);
 ---
 
 ## 📝 更新记录
+
+### v1.0.4 (2025-04-18)
+- ✅ 修复所有前端页面筛选查询功能不生效的问题
+- ✅ 优化参数传递逻辑，过滤空值参数
+- ✅ 提高代码可读性和API调用精确性
 
 ### v1.0.3 (2025-04-18)
 - ✅ 修复所有前端页面下拉框选择项被压缩问题

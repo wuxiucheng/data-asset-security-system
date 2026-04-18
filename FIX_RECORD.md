@@ -50,6 +50,65 @@
 
 ## 🔧 前端修复记录
 
+### 3. 下拉框选择项显示问题修复
+
+#### 问题描述
+- 所有前端页面在行内表单（inline form）中使用下拉框时
+- el-select组件没有设置合适的宽度
+- 导致下拉菜单打开时选择项被压缩，用户无法完整看到选项内容
+
+#### 修复内容
+1. **为搜索表单中的下拉框添加固定宽度**：
+   - 普通状态下拉框：设置 `style="width: 180px"`
+   - 资产选择等长文本下拉框：设置 `style="width: 200px"`
+
+2. **对话框中的下拉框保持100%宽度**：
+   - 新增/编辑对话框中的下拉框：保持 `style="width: 100%"`
+   - 确保在不同屏幕尺寸下都能良好显示
+
+#### 修复文件
+1. ✅ `src/views/asset/index.vue` - 资产管理页面
+2. ✅ `src/views/asset-field/index.vue` - 资产字段管理页面
+3. ✅ `src/views/classification/index.vue` - 数据分类管理页面
+4. ✅ `src/views/classification-standard/index.vue` - 分类标准管理页面
+5. ✅ `src/views/grading/index.vue` - 数据分级管理页面
+6. ✅ `src/views/grading-standard/index.vue` - 分级标准管理页面
+7. ✅ `src/views/department/index.vue` - 部门管理页面
+8. ✅ `src/views/owner/index.vue` - 责任人管理页面
+9. ✅ `src/views/permission/index.vue` - 权限管理页面
+10. ✅ `src/views/role/index.vue` - 角色管理页面
+11. ✅ `src/views/user/index.vue` - 用户管理页面
+12. ✅ `src/views/trend/index.vue` - 趋势分析页面
+
+#### 修复示例
+```vue
+<!-- 修复前 -->
+<el-form :inline="true" :model="searchForm">
+  <el-form-item label="状态">
+    <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+      <el-option label="启用" value="ACTIVE" />
+      <el-option label="禁用" value="INACTIVE" />
+    </el-select>
+  </el-form-item>
+</el-form>
+
+<!-- 修复后 -->
+<el-form :inline="true" :model="searchForm">
+  <el-form-item label="状态">
+    <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 180px">
+      <el-option label="启用" value="ACTIVE" />
+      <el-option label="禁用" value="INACTIVE" />
+    </el-select>
+  </el-form-item>
+</el-form>
+```
+
+#### 修复效果
+- ✅ 所有下拉框选择项都能完整显示
+- ✅ 下拉菜单不再被压缩
+- ✅ 用户体验得到显著改善
+- ✅ 在不同屏幕尺寸下都能正常显示
+
 ### 1. Element Plus 分页组件废弃用法修复
 
 #### 问题描述
@@ -297,6 +356,11 @@ service.saveBatch(entities);
 ---
 
 ## 📝 更新记录
+
+### v1.0.3 (2025-04-18)
+- ✅ 修复所有前端页面下拉框选择项被压缩问题
+- ✅ 为inline表单中的el-select组件添加合适宽度
+- ✅ 改善用户选择体验，确保选择项完整显示
 
 ### v1.0.2 (2025-06-16)
 - ✅ 修复Element Plus分页组件废弃用法

@@ -269,16 +269,6 @@ const handleDialogClose = () => {
   formRef.value?.resetFields()
 }
 
-// 分页变化
-const handleSizeChange = (size: number) => {
-  pagination.pageSize = size
-  getRoleList()
-}
-
-const handleCurrentChange = (page: number) => {
-  pagination.pageNum = page
-  getRoleList()
-}
 
 // 监听分页变化
 watch(() => pagination.pageNum, () => {

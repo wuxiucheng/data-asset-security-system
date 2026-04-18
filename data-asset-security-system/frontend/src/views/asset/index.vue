@@ -30,7 +30,7 @@
           <el-input v-model="queryParams.assetCode" placeholder="请输入资产编码" clearable />
         </el-form-item>
         <el-form-item label="资产类型">
-          <el-select v-model="queryParams.assetType" placeholder="请选择资产类型" clearable>
+          <el-select v-model="queryParams.assetType" placeholder="请选择资产类型" clearable style="width: 180px">
             <el-option label="数据库" value="DATABASE" />
             <el-option label="文件" value="FILE" />
             <el-option label="API" value="API" />
@@ -38,7 +38,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 180px">
             <el-option label="草稿" value="DRAFT" />
             <el-option label="启用" value="ACTIVE" />
             <el-option label="停用" value="INACTIVE" />

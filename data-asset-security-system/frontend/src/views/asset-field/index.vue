@@ -4,7 +4,7 @@
     <el-card class="search-card">
       <el-form :model="searchForm" inline>
         <el-form-item label="所属资产">
-          <el-select v-model="searchForm.assetId" placeholder="请选择资产" clearable filterable>
+          <el-select v-model="searchForm.assetId" placeholder="请选择资产" clearable filterable style="width: 200px">
             <el-option
               v-for="item in assetList"
               :key="item.assetId"
@@ -17,7 +17,7 @@
           <el-input v-model="searchForm.fieldName" placeholder="请输入字段名称" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 180px">
             <el-option label="启用" value="ACTIVE" />
             <el-option label="禁用" value="INACTIVE" />
           </el-select>
@@ -113,7 +113,7 @@
     >
       <el-form :model="batchFormData" ref="batchFormRef" label-width="120px">
         <el-form-item label="数据分类">
-          <el-select v-model="batchFormData.classificationId" placeholder="请选择数据分类" clearable>
+          <el-select v-model="batchFormData.classificationId" placeholder="请选择数据分类" clearable style="width: 100%">
             <el-option
               v-for="item in classificationList"
               :key="item.classificationId"
@@ -123,7 +123,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="数据分级">
-          <el-select v-model="batchFormData.gradingId" placeholder="请选择数据分级" clearable>
+          <el-select v-model="batchFormData.gradingId" placeholder="请选择数据分级" clearable style="width: 100%">
             <el-option
               v-for="item in gradingList"
               :key="item.gradingId"

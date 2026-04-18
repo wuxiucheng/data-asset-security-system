@@ -15,7 +15,7 @@
           />
         </el-form-item>
         <el-form-item label="分析类型">
-          <el-select v-model="filterForm.type" placeholder="请选择分析类型" clearable>
+          <el-select v-model="filterForm.type" placeholder="请选择分析类型" clearable style="width: 180px">
             <el-option label="资产增长" value="asset" />
             <el-option label="分类增长" value="classification" />
             <el-option label="分级增长" value="grading" />

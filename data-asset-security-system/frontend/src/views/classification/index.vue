@@ -7,7 +7,7 @@
           <el-input v-model="searchForm.classificationName" placeholder="请输入分类名称" clearable />
         </el-form-item>
         <el-form-item label="所属标准">
-          <el-select v-model="searchForm.standardId" placeholder="请选择标准" clearable>
+          <el-select v-model="searchForm.standardId" placeholder="请选择标准" clearable style="width: 180px">
             <el-option
               v-for="item in standardList"
               :key="item.standardId"
@@ -17,7 +17,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 180px">
             <el-option label="启用" value="ACTIVE" />
             <el-option label="禁用" value="INACTIVE" />
           </el-select>

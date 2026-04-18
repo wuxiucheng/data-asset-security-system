@@ -7,7 +7,7 @@
           <el-input v-model="searchForm.standardName" placeholder="请输入标准名称" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 180px">
             <el-option label="草稿" value="DRAFT" />
             <el-option label="已发布" value="ACTIVE" />
             <el-option label="已停用" value="INACTIVE" />

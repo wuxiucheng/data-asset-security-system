@@ -7,7 +7,7 @@
           <el-input v-model="searchForm.roleName" placeholder="请输入角色名称" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 180px">
             <el-option label="启用" value="ACTIVE" />
             <el-option label="禁用" value="INACTIVE" />
           </el-select>

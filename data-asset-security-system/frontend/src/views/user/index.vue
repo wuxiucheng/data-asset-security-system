@@ -20,7 +20,7 @@
           <el-input v-model="queryParams.realName" placeholder="请输入真实姓名" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 180px">
             <el-option label="启用" value="ACTIVE" />
             <el-option label="禁用" value="INACTIVE" />
           </el-select>

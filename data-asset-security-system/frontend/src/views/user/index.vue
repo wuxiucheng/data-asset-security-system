@@ -174,7 +174,16 @@ const userRules: FormRules = {
 const loadUserList = async () => {
   loading.value = true
   try {
-    const res = await userApi.getList(queryParams)
+    // 过滤空值参数
+    const params: any = {
+      pageNum: queryParams.pageNum,
+      pageSize: queryParams.pageSize
+    }
+    if (queryParams.username) params.username = queryParams.username
+    if (queryParams.realName) params.realName = queryParams.realName
+    if (queryParams.status) params.status = queryParams.status
+
+    const res = await userApi.getList(params)
     userList.value = res.data.list
     total.value = res.data.total
   } catch (error) {

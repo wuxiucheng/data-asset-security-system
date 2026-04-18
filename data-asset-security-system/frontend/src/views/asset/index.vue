@@ -397,7 +397,17 @@ const assetRules: FormRules = {
 const loadAssetList = async () => {
   loading.value = true
   try {
-    const res = await dataAssetApi.getList(queryParams)
+    // 过滤空值参数
+    const params: any = {
+      pageNum: queryParams.pageNum,
+      pageSize: queryParams.pageSize
+    }
+    if (queryParams.assetName) params.assetName = queryParams.assetName
+    if (queryParams.assetCode) params.assetCode = queryParams.assetCode
+    if (queryParams.assetType) params.assetType = queryParams.assetType
+    if (queryParams.status) params.status = queryParams.status
+
+    const res = await dataAssetApi.getList(params)
     assetList.value = res.data.list
     total.value = res.data.total
   } catch (error) {

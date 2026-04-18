@@ -178,11 +178,15 @@ const formRules = {
 const getRoleList = async () => {
   loading.value = true
   try {
-    const res = await roleApi.getList({
+    // 过滤空值参数
+    const params: any = {
       pageNum: pagination.pageNum,
-      pageSize: pagination.pageSize,
-      ...searchForm
-    })
+      pageSize: pagination.pageSize
+    }
+    if (searchForm.roleName) params.roleName = searchForm.roleName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await roleApi.getList(params)
     tableData.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {

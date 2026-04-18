@@ -173,11 +173,15 @@ const formRules = {
 const getOwnerList = async () => {
   loading.value = true
   try {
-    const res = await ownerApi.getList({
+    // 过滤空值参数
+    const params: any = {
       pageNum: pagination.pageNum,
-      pageSize: pagination.pageSize,
-      ...searchForm
-    })
+      pageSize: pagination.pageSize
+    }
+    if (searchForm.name) params.name = searchForm.name
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await ownerApi.getList(params)
     tableData.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {

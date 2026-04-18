@@ -184,11 +184,15 @@ const formRules = {
 const getGradingStandardList = async () => {
   loading.value = true
   try {
-    const res = await gradingStandardApi.getList({
+    // 过滤空值参数
+    const params: any = {
       pageNum: pagination.pageNum,
-      pageSize: pagination.pageSize,
-      ...searchForm
-    })
+      pageSize: pagination.pageSize
+    }
+    if (searchForm.standardName) params.standardName = searchForm.standardName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await gradingStandardApi.getList(params)
     tableData.value = res.data.list
     pagination.total = res.data.total
   } catch (error) {

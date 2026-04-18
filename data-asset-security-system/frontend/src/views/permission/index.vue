@@ -86,11 +86,15 @@ const loading = ref(false)
 const getPermissionList = async () => {
   loading.value = true
   try {
-    const res = await permissionApi.getList({
+    // 过滤空值参数
+    const params: any = {
       pageNum: 1,
-      pageSize: 1000,
-      ...searchForm
-    })
+      pageSize: 1000
+    }
+    if (searchForm.permissionName) params.permissionName = searchForm.permissionName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await permissionApi.getList(params)
     tableData.value = res.data.list
   } catch (error) {
     ElMessage.error('获取权限列表失败')

@@ -244,14 +244,18 @@ const getGradingList = async () => {
   }
   loading.value = true
   try {
-    const res = await dataGradingApi.getList({
+    // 过滤空值参数
+    const params: any = {
       pageNum: pagination.pageNum,
       pageSize: pagination.pageSize,
-      gradingName: searchForm.gradingName,
-      status: searchForm.status
-    })
-    tableData.value = res.data.list.filter((item: any) => item.standardId === searchForm.standardId)
-    pagination.total = tableData.value.length
+      standardId: searchForm.standardId
+    }
+    if (searchForm.gradingName) params.gradingName = searchForm.gradingName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await dataGradingApi.getList(params)
+    tableData.value = res.data.list
+    pagination.total = res.data.total
   } catch (error) {
     ElMessage.error('获取分级列表失败')
   } finally {

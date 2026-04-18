@@ -238,14 +238,18 @@ const getClassificationList = async () => {
   }
   loading.value = true
   try {
-    const res = await dataClassificationApi.getList({
+    // 过滤空值参数
+    const params: any = {
       pageNum: pagination.pageNum,
       pageSize: pagination.pageSize,
-      classificationName: searchForm.classificationName,
-      status: searchForm.status
-    })
-    tableData.value = res.data.list.filter((item: any) => item.standardId === searchForm.standardId)
-    pagination.total = tableData.value.length
+      standardId: searchForm.standardId
+    }
+    if (searchForm.classificationName) params.classificationName = searchForm.classificationName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await dataClassificationApi.getList(params)
+    tableData.value = res.data.list
+    pagination.total = res.data.total
   } catch (error) {
     ElMessage.error('获取分类列表失败')
   } finally {

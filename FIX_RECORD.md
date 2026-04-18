@@ -50,6 +50,103 @@
 
 ## 🔧 前端修复记录
 
+### 5. 特定页面筛选功能修复
+
+#### 问题描述
+- 部门管理、资产列表、趋势分析三个页面的筛选功能不生效
+- 虽然前端筛选框样式已修复，但实际查询过滤没有效果
+- 用户选择筛选条件后，查询结果没有相应变化
+
+#### 问题原因
+1. **部门管理页面**：
+   - 前端直接调用 `departmentApi.getTree()`，没有传递筛选参数
+   - 后端 `/api/department/tree` 接口没有实现筛选逻辑
+
+2. **资产列表页面**：
+   - 前端参数传递已修复，但后端只处理了部分参数
+   - 后端缺少 `assetCode` 和 `assetType` 的筛选逻辑
+
+3. **趋势分析页面**：
+   - 前端直接传递整个 `filterForm` 对象，包含空值
+   - 参数传递不够精确，影响筛选效果
+
+#### 修复内容
+1. **部门管理页面**：
+   - 修复 `getDepartmentTree` 函数，添加参数过滤逻辑
+   - 只传递有值的筛选条件：`departmentName`、`status`
+
+2. **资产列表页面（后端）**：
+   - 修复 `/api/asset/list` 接口，添加缺失的筛选逻辑
+   - 支持 `assetCode` 和 `assetType` 参数的筛选
+
+3. **趋势分析页面**：
+   - 修复 `getTrendData` 函数，添加参数过滤逻辑
+   - 只传递有值的筛选条件：`type`、`startDate`、`endDate`
+
+4. **后端部门树接口**：
+   - 修复 `/api/department/tree` 接口，实现筛选逻辑
+   - 支持 `departmentName` 和 `status` 参数的筛选
+
+#### 修复文件
+**前端**：
+1. ✅ `src/views/department/index.vue` - 部门管理页面
+2. ✅ `src/views/trend/index.vue` - 趋势分析页面
+
+**后端**：
+3. ✅ `simple-backend/server.js` - 模拟后端服务器
+
+#### 修复示例
+```typescript
+// 部门管理修复
+const getDepartmentTree = async () => {
+  loading.value = true
+  try {
+    // 过滤空值参数
+    const params: any = {}
+    if (searchForm.departmentName) params.departmentName = searchForm.departmentName
+    if (searchForm.status) params.status = searchForm.status
+
+    const res = await departmentApi.getTree(params)
+    tableData.value = res.data
+    departmentTree.value = res.data
+  } catch (error) {
+    ElMessage.error('获取部门树失败')
+  } finally {
+    loading.value = false
+  }
+}
+```
+
+```javascript
+// 资产列表后端修复
+app.get('/api/asset/list', (req, res) => {
+  const { pageNum, pageSize, assetName, assetCode, assetType, status } = req.query;
+  let filteredAssets = [...mockAssets];
+
+  if (assetName) {
+    filteredAssets = filteredAssets.filter(a => a.assetName.includes(assetName));
+  }
+  if (assetCode) {
+    filteredAssets = filteredAssets.filter(a => a.assetCode.includes(assetCode));
+  }
+  if (assetType) {
+    filteredAssets = filteredAssets.filter(a => a.assetType === assetType);
+  }
+  if (status) {
+    filteredAssets = filteredAssets.filter(a => a.status === status);
+  }
+
+  // 分页逻辑...
+});
+```
+
+#### 修复效果
+- ✅ 部门管理筛选功能现在可以正常工作
+- ✅ 资产列表所有筛选条件都能生效
+- ✅ 趋势分析筛选功能正常工作
+- ✅ 前后端参数传递逻辑统一规范
+- ✅ 用户体验得到显著改善
+
 ### 4. 筛选查询功能修复
 
 #### 问题描述
@@ -435,6 +532,11 @@ service.saveBatch(entities);
 ---
 
 ## 📝 更新记录
+
+### v1.0.5 (2025-04-18)
+- ✅ 修复部门管理、资产列表、趋势分析页面的筛选功能
+- ✅ 完善后端API筛选逻辑，支持所有筛选条件
+- ✅ 统一前后端参数传递规范
 
 ### v1.0.4 (2025-04-18)
 - ✅ 修复所有前端页面筛选查询功能不生效的问题

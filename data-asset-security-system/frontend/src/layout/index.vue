@@ -64,6 +64,15 @@
           <el-menu-item index="/statistics">资产统计</el-menu-item>
           <el-menu-item index="/trend">趋势分析</el-menu-item>
         </el-sub-menu>
+
+        <el-sub-menu index="report">
+          <template #title>
+            <el-icon><DocumentCopy /></el-icon>
+            <span>报告管理</span>
+          </template>
+          <el-menu-item index="/report-asset-list">资产清单报告</el-menu-item>
+          <el-menu-item index="/report-classification-stats">分类分级统计</el-menu-item>
+        </el-sub-menu>
       </el-menu>
     </el-aside>
 
@@ -115,6 +124,7 @@ import {
   OfficeBuilding,
   Files,
   Document,
+  DocumentCopy,
   DataAnalysis,
   Fold,
   Expand,

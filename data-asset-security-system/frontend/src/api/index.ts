@@ -536,3 +536,36 @@ export const statisticsApi = {
     return http.get<TrendData>('/statistics/trend', { params })
   },
 }
+
+// 报告相关API
+export const reportApi = {
+  // 生成资产清单报告
+  generateAssetListReport(params: any) {
+    return http.get('/report/asset-list/generate', { params })
+  },
+
+  // 导出资产清单报告
+  exportAssetListReport(params: any) {
+    return http.get('/report/asset-list/export', { params, responseType: 'blob' })
+  },
+
+  // 生成分类分级统计报告
+  generateClassificationStatsReport(params: any) {
+    return http.get('/report/classification-stats/generate', { params })
+  },
+
+  // 导出分类分级统计报告
+  exportClassificationStatsReport(params: any) {
+    return http.get('/report/classification-stats/export', { params, responseType: 'blob' })
+  },
+
+  // 获取报告生成历史
+  getReportHistory(params: any) {
+    return http.get('/report/history', { params })
+  },
+
+  // 删除报告
+  deleteReport(reportId: number) {
+    return http.delete(`/report/${reportId}`)
+  },
+}

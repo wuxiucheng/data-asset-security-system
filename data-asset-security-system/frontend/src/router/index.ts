@@ -102,6 +102,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '趋势分析', requiresAuth: true },
       },
       {
+        path: 'report-asset-list',
+        name: 'ReportAssetList',
+        component: () => import('@/views/report-asset-list/index.vue'),
+        meta: { title: '资产清单报告', requiresAuth: true },
+      },
+      {
+        path: 'report-classification-stats',
+        name: 'ReportClassificationStats',
+        component: () => import('@/views/report-classification-stats/index.vue'),
+        meta: { title: '分类分级统计', requiresAuth: true },
+      },
+      {
         path: 'profile',
         name: 'Profile',
         component: () => import('@/views/profile/index.vue'),

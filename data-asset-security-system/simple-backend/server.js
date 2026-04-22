@@ -834,6 +834,229 @@ app.get('/api/statistics/trend', (req, res) => {
   res.json({ code: 0, data: filteredData });
 });
 
+// ==================== 报告相关API ====================
+
+// 生成资产清单报告
+app.get('/api/report/asset-list/generate', (req, res) => {
+  const { assetType, departmentId, status, includeFieldDetails } = req.query;
+  let filteredAssets = [...mockAssets];
+
+  // 筛选逻辑
+  if (assetType) {
+    filteredAssets = filteredAssets.filter(a => a.assetType === assetType);
+  }
+  if (status) {
+    filteredAssets = filteredAssets.filter(a => a.status === status);
+  }
+
+  // 添加部门和责任人信息
+  const reportData = filteredAssets.map(asset => {
+    const department = mockDepartments.find(d => d.departmentId === asset.departmentId);
+    const owner = mockOwners.find(o => o.ownerId === asset.ownerId);
+    const classification = mockClassifications.find(c => c.classificationId === asset.classificationId);
+    const grading = mockGradings.find(g => g.gradingId === asset.gradingId);
+
+    return {
+      assetName: asset.assetName,
+      assetCode: asset.assetCode,
+      assetType: asset.assetType,
+      systemName: asset.systemName,
+      departmentName: department ? department.departmentName : '',
+      ownerName: owner ? owner.name : '',
+      classificationName: classification ? classification.classificationName : '',
+      gradingName: grading ? grading.gradingName : '',
+      status: asset.status,
+      createTime: asset.createTime,
+      includeFieldDetails: includeFieldDetails === 'true'
+    };
+  });
+
+  res.json({
+    code: 0,
+    data: {
+      list: reportData,
+      total: reportData.length
+    }
+  });
+});
+
+// 导出资产清单报告
+app.get('/api/report/asset-list/export', (req, res) => {
+  // 模拟Excel导出，返回CSV格式数据
+  const csvData = '资产名称,资产编码,资产类型,所属部门,责任人,分类,分级,状态,创建时间\n';
+  csvData += '客户信息表,CUSTOMER_001,数据库,技术部,张三,个人信息,秘密,ACTIVE,2025-04-01\n';
+  csvData += '订单数据表,ORDER_002,数据库,技术部,李四,业务数据,内部,ACTIVE,2025-04-02\n';
+  csvData += '财务报表,FINANCE_003,文件,财务部,王五,财务数据,机密,ACTIVE,2025-04-03\n';
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename=asset_list_report.csv');
+  res.send(csvData);
+});
+
+// 生成分类分级统计报告
+app.get('/api/report/classification-stats/generate', (req, res) => {
+  const { dimension } = req.query;
+
+  // 统计数据
+  const totalAssets = mockAssets.length;
+  const classifiedAssets = mockAssets.filter(a => a.classificationId).length;
+  const gradedAssets = mockAssets.filter(a => a.gradingId).length;
+  const highLevelAssets = mockAssets.filter(a => {
+    const grading = mockGradings.find(g => g.gradingId === a.gradingId);
+    return grading && (grading.gradingName === '绝密' || grading.gradingName === '机密');
+  }).length;
+
+  // 分类分布
+  const classificationDistribution = [
+    { value: 35, name: '个人信息' },
+    { value: 25, name: '业务数据' },
+    { value: 20, name: '财务数据' },
+    { value: 15, name: '技术数据' },
+    { value: 5, name: '其他数据' }
+  ];
+
+  // 分级分布
+  const gradingDistribution = [
+    { name: '绝密', value: 8 },
+    { name: '机密', value: 15 },
+    { name: '秘密', value: 27 },
+    { name: '内部', value: 35 },
+    { name: '公开', value: 15 }
+  ];
+
+  // 部门统计
+  const departmentStats = {
+    departments: ['技术部', '业务部', '财务部'],
+    categories: ['个人信息', '业务数据', '财务数据'],
+    series: [
+      {
+        name: '个人信息',
+        type: 'bar',
+        stack: 'total',
+        data: [15, 12, 8]
+      },
+      {
+        name: '业务数据',
+        type: 'bar',
+        stack: 'total',
+        data: [10, 18, 5]
+      },
+      {
+        name: '财务数据',
+        type: 'bar',
+        stack: 'total',
+        data: [5, 2, 13]
+      }
+    ]
+  };
+
+  // 详细数据
+  const detailData = [
+    { category: '个人信息', count: 35, percentage: 35, trend: 5.2, description: '包含客户姓名、电话、地址等敏感信息' },
+    { category: '业务数据', count: 25, percentage: 25, trend: 3.1, description: '包含订单、产品、交易等业务信息' },
+    { category: '财务数据', count: 20, percentage: 20, trend: -2.3, description: '包含财务报表、预算、成本等信息' },
+    { category: '技术数据', count: 15, percentage: 15, trend: 1.8, description: '包含系统配置、日志、监控等信息' },
+    { category: '其他数据', count: 5, percentage: 5, trend: 0.5, description: '其他类型的数据资产' }
+  ];
+
+  res.json({
+    code: 0,
+    data: {
+      totalAssets,
+      classificationCoverage: ((classifiedAssets / totalAssets) * 100).toFixed(1),
+      gradingCoverage: ((gradedAssets / totalAssets) * 100).toFixed(1),
+      highLevelAssets,
+      classificationDistribution,
+      gradingDistribution,
+      departmentStats,
+      detailData
+    }
+  });
+});
+
+// 导出分类分级统计报告
+app.get('/api/report/classification-stats/export', (req, res) => {
+  // 模拟PDF导出，返回文本格式数据
+  const pdfData = `
+数据分类分级统计报告
+=====================
+
+生成时间: ${new Date().toLocaleString()}
+统计维度: 综合统计
+
+一、总体概况
+-----------
+总资产数: 100
+分类覆盖率: 95.0%
+分级覆盖率: 85.0%
+高级别资产: 23
+
+二、分类分布
+-----------
+个人信息: 35 (35%)
+业务数据: 25 (25%)
+财务数据: 20 (20%)
+技术数据: 15 (15%)
+其他数据: 5 (5%)
+
+三、分级分布
+-----------
+绝密: 8 (8%)
+机密: 15 (15%)
+秘密: 27 (27%)
+内部: 35 (35%)
+公开: 15 (15%)
+
+四、部门统计
+-----------
+技术部: 30个资产
+业务部: 32个资产
+财务部: 38个资产
+  `;
+
+  res.setHeader('Content-Type', 'text/plain');
+  res.setHeader('Content-Disposition', 'attachment; filename=classification_stats_report.txt');
+  res.send(pdfData);
+});
+
+// 获取报告生成历史
+app.get('/api/report/history', (req, res) => {
+  const { reportType } = req.query;
+  let mockHistory = [
+    {
+      id: 1,
+      reportName: '数据资产清单报告_20250418',
+      reportType: '数据资产清单',
+      outputFormat: 'excel',
+      generatedBy: 'admin',
+      generationTime: '2025-04-18 10:30:00',
+      downloadCount: 3
+    },
+    {
+      id: 2,
+      reportName: '数据分类分级统计报告_20250418',
+      reportType: '分类分级统计',
+      outputFormat: 'pdf',
+      generatedBy: 'admin',
+      generationTime: '2025-04-18 11:15:00',
+      downloadCount: 5
+    }
+  ];
+
+  if (reportType) {
+    mockHistory = mockHistory.filter(item => item.reportType === reportType);
+  }
+
+  res.json({ code: 0, data: mockHistory });
+});
+
+// 删除报告
+app.delete('/api/report/:reportId', (req, res) => {
+  const { reportId } = req.params;
+  // 模拟删除操作
+  res.json({ code: 0, message: '报告删除成功' });
+});
+
 // 健康检查
 app.get('/actuator/health', (req, res) => {
   res.json({ status: 'UP' });

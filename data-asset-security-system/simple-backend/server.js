@@ -882,15 +882,104 @@ app.get('/api/report/asset-list/generate', (req, res) => {
 
 // 导出资产清单报告
 app.get('/api/report/asset-list/export', (req, res) => {
-  // 模拟Excel导出，返回CSV格式数据
-  const csvData = '资产名称,资产编码,资产类型,所属部门,责任人,分类,分级,状态,创建时间\n';
-  csvData += '客户信息表,CUSTOMER_001,数据库,技术部,张三,个人信息,秘密,ACTIVE,2025-04-01\n';
-  csvData += '订单数据表,ORDER_002,数据库,技术部,李四,业务数据,内部,ACTIVE,2025-04-02\n';
-  csvData += '财务报表,FINANCE_003,文件,财务部,王五,财务数据,机密,ACTIVE,2025-04-03\n';
+  try {
+    const { assetType, departmentId, status, outputFormat } = req.query;
+    let filteredAssets = [...mockAssets];
 
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename=asset_list_report.csv');
-  res.send(csvData);
+    // 筛选逻辑
+    if (assetType) {
+      filteredAssets = filteredAssets.filter(a => a.assetType === assetType);
+    }
+    if (status) {
+      filteredAssets = filteredAssets.filter(a => a.status === status);
+    }
+
+    // 添加部门和责任人信息
+    const reportData = filteredAssets.map(asset => {
+      const department = mockDepartments.find(d => d.departmentId === asset.departmentId);
+      const owner = mockOwners.find(o => o.ownerId === asset.ownerId);
+      const classification = mockClassifications.find(c => c.classificationId === asset.classificationId);
+      const grading = mockGradings.find(g => g.gradingId === asset.gradingId);
+
+      return {
+        assetName: asset.assetName,
+        assetCode: asset.assetCode,
+        assetType: asset.assetType,
+        systemName: asset.systemName,
+        departmentName: department ? department.departmentName : '',
+        ownerName: owner ? owner.name : '',
+        classificationName: classification ? classification.classificationName : '',
+        gradingName: grading ? grading.gradingName : '',
+        status: asset.status,
+        createTime: asset.createTime || new Date().toISOString().split('T')[0]
+      };
+    });
+
+    // 根据输出格式生成文件
+    if (outputFormat === 'pdf') {
+      // PDF格式（文本格式模拟）
+      const pdfContent = `
+数据资产清单报告
+=====================
+
+生成时间: ${new Date().toLocaleString()}
+报告类型: 数据资产清单
+
+一、总体概况
+-----------
+总资产数: ${reportData.length}
+
+二、资产明细
+-----------
+${reportData.map((item, index) => `
+${index + 1}. ${item.assetName}
+   资产编码: ${item.assetCode}
+   资产类型: ${item.assetType}
+   所属系统: ${item.systemName}
+   所属部门: ${item.departmentName}
+   责任人: ${item.ownerName}
+   数据分类: ${item.classificationName}
+   数据分级: ${item.gradingName}
+   状态: ${item.status}
+   创建时间: ${item.createTime}
+`).join('\n')}
+
+=====================
+报告结束
+      `;
+
+      const timestamp = new Date().getTime();
+      const filename = `asset_list_report_${timestamp}.txt`;
+      const encodedFilename = encodeURIComponent(filename);
+
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
+      res.send(pdfContent);
+
+    } else {
+      // Excel格式（CSV格式）
+      const csvHeader = '资产名称,资产编码,资产类型,所属系统,所属部门,责任人,数据分类,数据分级,状态,创建时间\n';
+      const csvRows = reportData.map(item =>
+        `${item.assetName},${item.assetCode},${item.assetType},${item.systemName},${item.departmentName},${item.ownerName},${item.classificationName},${item.gradingName},${item.status},${item.createTime}`
+      ).join('\n');
+
+      const csvContent = '\uFEFF' + csvHeader + csvRows; // 添加BOM解决中文乱码
+
+      const timestamp = new Date().getTime();
+      const filename = `asset_list_report_${timestamp}.csv`;
+      const encodedFilename = encodeURIComponent(filename);
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
+      res.send(csvContent);
+    }
+  } catch (error) {
+    console.error('导出资产清单报告失败:', error);
+    res.status(500).json({
+      code: 500,
+      message: '导出失败：' + error.message
+    });
+  }
 });
 
 // 生成分类分级统计报告
@@ -976,47 +1065,251 @@ app.get('/api/report/classification-stats/generate', (req, res) => {
 
 // 导出分类分级统计报告
 app.get('/api/report/classification-stats/export', (req, res) => {
-  // 模拟PDF导出，返回文本格式数据
-  const pdfData = `
+  try {
+    const { dimension, outputFormat } = req.query;
+
+    // 获取统计数据（重新生成以确保数据一致性）
+    const totalAssets = mockAssets.length;
+    const classifiedAssets = mockAssets.filter(a => a.classificationId).length;
+    const gradedAssets = mockAssets.filter(a => a.gradingId).length;
+    const highLevelAssets = mockAssets.filter(a => {
+      const grading = mockGradings.find(g => g.gradingId === a.gradingId);
+      return grading && (grading.gradingName === '绝密' || grading.gradingName === '机密');
+    }).length;
+
+    // 分类分布
+    const classificationDistribution = [
+      { value: 35, name: '个人信息' },
+      { value: 25, name: '业务数据' },
+      { value: 20, name: '财务数据' },
+      { value: 15, name: '技术数据' },
+      { value: 5, name: '其他数据' }
+    ];
+
+    // 分级分布
+    const gradingDistribution = [
+      { name: '绝密', value: 8 },
+      { name: '机密', value: 15 },
+      { name: '秘密', value: 27 },
+      { name: '内部', value: 35 },
+      { name: '公开', value: 15 }
+    ];
+
+    // 部门统计
+    const departmentStats = {
+      departments: ['技术部', '业务部', '财务部'],
+      categories: ['个人信息', '业务数据', '财务数据'],
+      series: [
+        {
+          name: '个人信息',
+          type: 'bar',
+          stack: 'total',
+          data: [15, 12, 8]
+        },
+        {
+          name: '业务数据',
+          type: 'bar',
+          stack: 'total',
+          data: [10, 18, 5]
+        },
+        {
+          name: '财务数据',
+          type: 'bar',
+          stack: 'total',
+          data: [5, 2, 13]
+        }
+      ]
+    };
+
+    // 详细数据
+    const detailData = [
+      { category: '个人信息', count: 35, percentage: 35, trend: 5.2, description: '包含客户姓名、电话、地址等敏感信息' },
+      { category: '业务数据', count: 25, percentage: 25, trend: 3.1, description: '包含订单、产品、交易等业务信息' },
+      { category: '财务数据', count: 20, percentage: 20, trend: -2.3, description: '包含财务报表、预算、成本等信息' },
+      { category: '技术数据', count: 15, percentage: 15, trend: 1.8, description: '包含系统配置、日志、监控等信息' },
+      { category: '其他数据', count: 5, percentage: 5, trend: 0.5, description: '其他类型的数据资产' }
+    ];
+
+    // 根据输出格式生成文件
+    if (outputFormat === 'html') {
+      // HTML格式
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据分类分级统计报告</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .section { margin-bottom: 30px; }
+        .metric { display: inline-block; margin: 10px 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>数据分类分级统计报告</h1>
+        <p>生成时间: ${new Date().toLocaleString()}</p>
+    </div>
+
+    <div class="section">
+        <h2>一、总体概况</h2>
+        <div class="metric">总资产数: <strong>${totalAssets}</strong></div>
+        <div class="metric">分类覆盖率: <strong>${((classifiedAssets / totalAssets) * 100).toFixed(1)}%</strong></div>
+        <div class="metric">分级覆盖率: <strong>${((gradedAssets / totalAssets) * 100).toFixed(1)}%</strong></div>
+        <div class="metric">高级别资产: <strong>${highLevelAssets}</strong></div>
+    </div>
+
+    <div class="section">
+        <h2>二、分类分布</h2>
+        <table>
+            <tr><th>类别</th><th>数量</th><th>占比</th><th>趋势</th><th>说明</th></tr>
+            ${detailData.map(item => `
+                <tr>
+                    <td>${item.category}</td>
+                    <td>${item.count}</td>
+                    <td>${item.percentage}%</td>
+                    <td>${item.trend >= 0 ? '+' : ''}${item.trend}%</td>
+                    <td>${item.description}</td>
+                </tr>
+            `).join('')}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>三、分级分布</h2>
+        <table>
+            <tr><th>级别</th><th>数量</th><th>占比</th></tr>
+            ${gradingDistribution.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.value}</td>
+                    <td>${item.value}%</td>
+                </tr>
+            `).join('')}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>四、部门统计</h2>
+        <table>
+            <tr><th>部门</th><th>个人信息</th><th>业务数据</th><th>财务数据</th><th>总计</th></tr>
+            ${departmentStats.departments.map((dept, index) => `
+                <tr>
+                    <td>${dept}</td>
+                    <td>${departmentStats.series[0].data[index]}</td>
+                    <td>${departmentStats.series[1].data[index]}</td>
+                    <td>${departmentStats.series[2].data[index]}</td>
+                    <td>${departmentStats.series[0].data[index] + departmentStats.series[1].data[index] + departmentStats.series[2].data[index]}</td>
+                </tr>
+            `).join('')}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>五、详细数据</h2>
+        <table>
+            <tr><th>类别</th><th>数量</th><th>占比</th><th>趋势</th><th>说明</th></tr>
+            ${detailData.map(item => `
+                <tr>
+                    <td>${item.category}</td>
+                    <td>${item.count}</td>
+                    <td>${item.percentage}%</td>
+                    <td>${item.trend >= 0 ? '+' : ''}${item.trend}%</td>
+                    <td>${item.description}</td>
+                </tr>
+            `).join('')}
+        </table>
+    </div>
+</body>
+</html>
+      `;
+
+      const timestamp = new Date().getTime();
+      const filename = `classification_stats_report_${timestamp}.html`;
+      const encodedFilename = encodeURIComponent(filename);
+
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
+      res.send(htmlContent);
+
+    } else if (outputFormat === 'pdf') {
+      // PDF格式（文本格式模拟）
+      const pdfContent = `
 数据分类分级统计报告
 =====================
 
 生成时间: ${new Date().toLocaleString()}
-统计维度: 综合统计
+统计维度: ${dimension || '综合统计'}
 
 一、总体概况
 -----------
-总资产数: 100
-分类覆盖率: 95.0%
-分级覆盖率: 85.0%
-高级别资产: 23
+总资产数: ${totalAssets}
+分类覆盖率: ${((classifiedAssets / totalAssets) * 100).toFixed(1)}%
+分级覆盖率: ${((gradedAssets / totalAssets) * 100).toFixed(1)}%
+高级别资产: ${highLevelAssets}
 
 二、分类分布
 -----------
-个人信息: 35 (35%)
-业务数据: 25 (25%)
-财务数据: 20 (20%)
-技术数据: 15 (15%)
-其他数据: 5 (5%)
+${classificationDistribution.map(item => `${item.name}: ${item.value} (${item.value}%)`).join('\n')}
 
 三、分级分布
 -----------
-绝密: 8 (8%)
-机密: 15 (15%)
-秘密: 27 (27%)
-内部: 35 (35%)
-公开: 15 (15%)
+${gradingDistribution.map(item => `${item.name}: ${item.value} (${item.value}%)`).join('\n')}
 
 四、部门统计
 -----------
-技术部: 30个资产
-业务部: 32个资产
-财务部: 38个资产
-  `;
+${departmentStats.departments.map((dept, index) => 
+  `${dept}: ${departmentStats.series[0].data[index]} (个人信息) + ${departmentStats.series[1].data[index]} (业务数据) + ${departmentStats.series[2].data[index]} (财务数据) = ${departmentStats.series[0].data[index] + departmentStats.series[1].data[index] + departmentStats.series[2].data[index]} (总计)`
+).join('\n')}
 
-  res.setHeader('Content-Type', 'text/plain');
-  res.setHeader('Content-Disposition', 'attachment; filename=classification_stats_report.txt');
-  res.send(pdfData);
+五、详细数据
+-----------
+${detailData.map(item => 
+  `${item.category}: ${item.count} (${item.percentage}%), 趋势: ${item.trend >= 0 ? '+' : ''}${item.trend}%, ${item.description}`
+).join('\n')}
+
+=====================
+报告结束
+      `;
+
+      const timestamp = new Date().getTime();
+      const filename = `classification_stats_report_${timestamp}.txt`;
+      const encodedFilename = encodeURIComponent(filename);
+
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
+      res.send(pdfContent);
+
+    } else {
+      // Excel格式（CSV格式）
+      const csvHeader = '类别,数量,占比,趋势,说明\n';
+      const csvRows = detailData.map(item =>
+        `${item.category},${item.count},${item.percentage},${item.trend},"${item.description}"`
+      ).join('\n');
+
+      const csvContent = '\uFEFF' + csvHeader + csvRows; // 添加BOM解决中文乱码
+
+      const timestamp = new Date().getTime();
+      const filename = `classification_stats_report_${timestamp}.csv`;
+      const encodedFilename = encodeURIComponent(filename);
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
+      res.send(csvContent);
+    }
+  } catch (error) {
+    console.error('导出分类分级统计报告失败:', error);
+    res.status(500).json({
+      code: 500,
+      message: '导出失败：' + error.message
+    });
+  }
 });
 
 // 获取报告生成历史

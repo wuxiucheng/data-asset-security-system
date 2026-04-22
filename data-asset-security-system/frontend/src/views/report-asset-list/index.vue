@@ -336,10 +336,25 @@ const handleExportPDF = async () => {
 // 下载历史报告
 const handleDownload = async (row: any) => {
   try {
-    ElMessage.success('开始下载：' + row.reportName)
-    // 这里应该调用实际的下载API
+    ElMessage.info('开始下载：' + row.reportName);
+    
+    // 模拟文件下载
+    const mockFileContent = `报告名称: ${row.reportName}\n报告类型: ${row.reportType}\n生成时间: ${row.generationTime}\n下载次数: ${row.downloadCount}`;
+    const blob = new Blob([mockFileContent], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${row.reportName}.txt`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    
+    // 更新下载次数
+    row.downloadCount++;
+    
+    ElMessage.success('下载成功：' + row.reportName);
   } catch (error) {
     ElMessage.error('下载失败')
+    console.error('下载失败:', error)
   }
 }
 

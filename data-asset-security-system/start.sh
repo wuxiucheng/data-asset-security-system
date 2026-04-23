@@ -45,14 +45,39 @@ print_title() {
     echo ""
 }
 
-# 检查端口是否被占用
+# 检查端口是否被占用并获取进程信息
 check_port() {
     local port=$1
     local service=$2
-    
-    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
-        print_message "$YELLOW" "⚠️  端口 $port 已被占用 ($service)"
+
+    local pid=$(lsof -ti :$port 2>/dev/null)
+    if [ -n "$pid" ]; then
+        print_message "$YELLOW" "⚠️  端口 $port 已被占用 ($service)，PID: $pid"
         return 1
+    fi
+    return 0
+}
+
+# 强制杀掉指定端口的进程
+kill_port_process() {
+    local port=$1
+    local service=$2
+
+    local pid=$(lsof -ti :$port 2>/dev/null)
+    if [ -n "$pid" ]; then
+        print_message "$YELLOW" "🔄 正在停止 $service (端口 $port, PID: $pid)..."
+        kill -9 $pid 2>/dev/null
+        sleep 2
+
+        # 再次检查确保进程已停止
+        local remaining_pid=$(lsof -ti :$port 2>/dev/null)
+        if [ -n "$remaining_pid" ]; then
+            print_message "$RED" "❌ 无法停止 $service，请手动杀掉进程: kill -9 $remaining_pid"
+            return 1
+        else
+            print_message "$GREEN" "✅ $service 已停止"
+            return 0
+        fi
     fi
     return 0
 }
@@ -106,37 +131,63 @@ install_backend_deps() {
 # 启动后端服务
 start_backend() {
     print_message "$YELLOW" "🚀 启动后端服务..."
-    
+
     # 检查是否已经在运行
     if [ -f "$BACKEND_PID_FILE" ]; then
         local pid=$(cat "$BACKEND_PID_FILE")
         if ps -p $pid > /dev/null 2>&1; then
-            print_message "$YELLOW" "⚠️  后端服务已在运行 (PID: $pid)"
-            return 0
-        else
-            rm "$BACKEND_PID_FILE"
+            print_message "$YELLOW" "⚠️  后端服务已在运行 (PID: $pid)，正在停止..."
+            kill $pid 2>/dev/null
+            sleep 2
+
+            # 检查是否停止成功
+            if ps -p $pid > /dev/null 2>&1; then
+                kill -9 $pid 2>/dev/null
+                sleep 1
+            fi
         fi
+        rm -f "$BACKEND_PID_FILE"
     fi
-    
-    # 检查端口
+
+    # 强制杀掉占用8080端口的进程
+    kill_port_process 8080 "后端服务"
+
+    # 等待端口释放
+    sleep 1
+
+    # 再次检查端口
     if ! check_port 8080 "后端服务"; then
-        print_message "$RED" "❌ 无法启动后端服务，端口 8080 被占用"
+        print_message "$RED" "❌ 无法启动后端服务，端口 8080 仍被占用"
+        print_message "$YELLOW" "💡 提示: 请手动杀掉占用8080端口的进程"
         exit 1
     fi
-    
+
     cd "$BACKEND_DIR"
     nohup node server.js > "$BACKEND_LOG" 2>&1 &
     local pid=$!
     echo $pid > "$BACKEND_PID_FILE"
-    
+
     # 等待服务启动
     sleep 3
-    
+
+    # 检查进程是否还在运行
     if ps -p $pid > /dev/null 2>&1; then
-        print_message "$GREEN" "✅ 后端服务启动成功 (PID: $pid)"
-        print_message "$GREEN" "📍 后端地址: http://localhost:8080"
+        # 验证端口是否真正被监听
+        sleep 2
+        local port_pid=$(lsof -ti :8080 2>/dev/null)
+        if [ -n "$port_pid" ]; then
+            print_message "$GREEN" "✅ 后端服务启动成功 (PID: $pid)"
+            print_message "$GREEN" "📍 后端地址: http://localhost:8080"
+        else
+            print_message "$RED" "❌ 后端服务启动失败，端口未被监听"
+            print_message "$YELLOW" "💡 请查看日志: $BACKEND_LOG"
+            rm -f "$BACKEND_PID_FILE"
+            exit 1
+        fi
     else
-        print_message "$RED" "❌ 后端服务启动失败，请查看日志: $BACKEND_LOG"
+        print_message "$RED" "❌ 后端服务启动失败，进程已退出"
+        print_message "$YELLOW" "💡 请查看日志: $BACKEND_LOG"
+        rm -f "$BACKEND_PID_FILE"
         exit 1
     fi
 }
@@ -144,37 +195,63 @@ start_backend() {
 # 启动前端服务
 start_frontend() {
     print_message "$YELLOW" "🚀 启动前端服务..."
-    
+
     # 检查是否已经在运行
     if [ -f "$FRONTEND_PID_FILE" ]; then
         local pid=$(cat "$FRONTEND_PID_FILE")
         if ps -p $pid > /dev/null 2>&1; then
-            print_message "$YELLOW" "⚠️  前端服务已在运行 (PID: $pid)"
-            return 0
-        else
-            rm "$FRONTEND_PID_FILE"
+            print_message "$YELLOW" "⚠️  前端服务已在运行 (PID: $pid)，正在停止..."
+            kill $pid 2>/dev/null
+            sleep 2
+
+            # 检查是否停止成功
+            if ps -p $pid > /dev/null 2>&1; then
+                kill -9 $pid 2>/dev/null
+                sleep 1
+            fi
         fi
+        rm -f "$FRONTEND_PID_FILE"
     fi
-    
-    # 检查端口
+
+    # 强制杀掉占用5173端口的进程
+    kill_port_process 5173 "前端服务"
+
+    # 等待端口释放
+    sleep 1
+
+    # 再次检查端口
     if ! check_port 5173 "前端服务"; then
-        print_message "$RED" "❌ 无法启动前端服务，端口 5173 被占用"
+        print_message "$RED" "❌ 无法启动前端服务，端口 5173 仍被占用"
+        print_message "$YELLOW" "💡 提示: 请手动杀掉占用5173端口的进程"
         exit 1
     fi
-    
+
     cd "$FRONTEND_DIR"
     nohup npm run dev > "$FRONTEND_LOG" 2>&1 &
     local pid=$!
     echo $pid > "$FRONTEND_PID_FILE"
-    
+
     # 等待服务启动
     sleep 5
-    
+
+    # 检查进程是否还在运行
     if ps -p $pid > /dev/null 2>&1; then
-        print_message "$GREEN" "✅ 前端服务启动成功 (PID: $pid)"
-        print_message "$GREEN" "📍 前端地址: http://localhost:5173"
+        # 验证端口是否真正被监听
+        sleep 2
+        local port_pid=$(lsof -ti :5173 2>/dev/null)
+        if [ -n "$port_pid" ]; then
+            print_message "$GREEN" "✅ 前端服务启动成功 (PID: $pid)"
+            print_message "$GREEN" "📍 前端地址: http://localhost:5173"
+        else
+            print_message "$RED" "❌ 前端服务启动失败，端口未被监听"
+            print_message "$YELLOW" "💡 请查看日志: $FRONTEND_LOG"
+            rm -f "$FRONTEND_PID_FILE"
+            exit 1
+        fi
     else
-        print_message "$RED" "❌ 前端服务启动失败，请查看日志: $FRONTEND_LOG"
+        print_message "$RED" "❌ 前端服务启动失败，进程已退出"
+        print_message "$YELLOW" "💡 请查看日志: $FRONTEND_LOG"
+        rm -f "$FRONTEND_PID_FILE"
         exit 1
     fi
 }
@@ -182,26 +259,62 @@ start_frontend() {
 # 停止服务
 stop_services() {
     print_message "$YELLOW" "🛑 停止服务..."
-    
+
     # 停止前端
     if [ -f "$FRONTEND_PID_FILE" ]; then
         local pid=$(cat "$FRONTEND_PID_FILE")
         if ps -p $pid > /dev/null 2>&1; then
-            kill $pid
+            print_message "$YELLOW" "🔄 正在停止前端服务 (PID: $pid)..."
+            kill $pid 2>/dev/null
+            sleep 2
+
+            # 强制杀掉
+            if ps -p $pid > /dev/null 2>&1; then
+                kill -9 $pid 2>/dev/null
+                sleep 1
+            fi
             print_message "$GREEN" "✅ 前端服务已停止 (PID: $pid)"
+        else
+            print_message "$YELLOW" "⚠️  前端服务进程不存在 (PID: $pid)"
         fi
-        rm "$FRONTEND_PID_FILE"
+        rm -f "$FRONTEND_PID_FILE"
     fi
-    
+
+    # 强制杀掉占用5173端口的进程
+    kill_port_process 5173 "前端服务"
+
     # 停止后端
     if [ -f "$BACKEND_PID_FILE" ]; then
         local pid=$(cat "$BACKEND_PID_FILE")
         if ps -p $pid > /dev/null 2>&1; then
-            kill $pid
+            print_message "$YELLOW" "🔄 正在停止后端服务 (PID: $pid)..."
+            kill $pid 2>/dev/null
+            sleep 2
+
+            # 强制杀掉
+            if ps -p $pid > /dev/null 2>&1; then
+                kill -9 $pid 2>/dev/null
+                sleep 1
+            fi
             print_message "$GREEN" "✅ 后端服务已停止 (PID: $pid)"
+        else
+            print_message "$YELLOW" "⚠️  后端服务进程不存在 (PID: $pid)"
         fi
-        rm "$BACKEND_PID_FILE"
+        rm -f "$BACKEND_PID_FILE"
     fi
+
+    # 强制杀掉占用8080端口的进程
+    kill_port_process 8080 "后端服务"
+
+    # 清理所有相关进程
+    print_message "$YELLOW" "🧹 清理相关进程..."
+    pkill -f "node server.js" 2>/dev/null
+    pkill -f "npm run dev" 2>/dev/null
+    pkill -f "vite" 2>/dev/null
+
+    sleep 1
+
+    print_message "$GREEN" "✅ 所有服务已停止"
 }
 
 # 查看状态

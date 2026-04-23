@@ -29,6 +29,11 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   (response: AxiosResponse) => {
+    // 如果是blob类型（文件下载），直接返回响应
+    if (response.config.responseType === 'blob') {
+      return response
+    }
+
     const res = response.data
 
     // 如果返回的状态码不是0，则判断为错误

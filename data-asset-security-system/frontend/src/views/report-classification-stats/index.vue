@@ -108,8 +108,9 @@
         </el-col>
         <el-col :span="6">
           <el-card class="metric-card">
-            <el-statistic title="分类覆盖率" :value="statisticsData.classificationCoverage + '%'">
+            <el-statistic title="分类覆盖率" :value="parseFloat(statisticsData.classificationCoverage)">
               <template #suffix>
+                <span style="color: inherit">%</span>
                 <el-icon style="vertical-align: -0.125em">
                   <component :is="'CircleCheck'" />
                 </el-icon>
@@ -119,8 +120,9 @@
         </el-col>
         <el-col :span="6">
           <el-card class="metric-card">
-            <el-statistic title="分级覆盖率" :value="statisticsData.gradingCoverage + '%'">
+            <el-statistic title="分级覆盖率" :value="parseFloat(statisticsData.gradingCoverage)">
               <template #suffix>
+                <span style="color: inherit">%</span>
                 <el-icon style="vertical-align: -0.125em">
                   <component :is="'CircleCheck'" />
                 </el-icon>

@@ -45,6 +45,12 @@ public class DataAssetVO {
     @Schema(description = "表名")
     private String tableName;
 
+    @Schema(description = "关联数据源ID")
+    private Long dataSourceId;
+
+    @Schema(description = "关联数据源名称")
+    private String dataSourceName;
+
     @Schema(description = "资产描述")
     private String assetDescription;
 
@@ -101,6 +107,9 @@ public class DataAssetVO {
 
     @Schema(description = "过期时间")
     private LocalDateTime expireTime;
+
+    @Schema(description = "数据条数，记录该资产对应数据表的记录总行数")
+    private Long rowCount;
 
     @Schema(description = "备注")
     private String remarks;

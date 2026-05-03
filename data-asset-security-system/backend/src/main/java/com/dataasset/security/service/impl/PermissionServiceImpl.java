@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PermissionServiceImpl extends ServiceImpl<SysPermissionMapper, SysPermission> implements PermissionService {
 
+    private final SysPermissionMapper sysPermissionMapper;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createPermission(PermissionCreateDTO createDTO) {

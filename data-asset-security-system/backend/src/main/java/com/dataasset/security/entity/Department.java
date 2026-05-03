@@ -1,5 +1,6 @@
 package com.dataasset.security.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class Department implements Serializable {
     /**
      * 部门ID
      */
-    @TableId(value = "department_id")
+    @TableId(value = "department_id", type = IdType.ASSIGN_ID)
     private Long departmentId;
 
     /**

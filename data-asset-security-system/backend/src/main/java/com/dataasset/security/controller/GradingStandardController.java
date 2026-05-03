@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/grading-standards")
+@RequestMapping("/gradingStandard")
 @RequiredArgsConstructor
 @Tag(name = "数据分级标准管理", description = "数据分级标准CRUD相关接口")
 public class GradingStandardController {
@@ -117,5 +117,25 @@ public class GradingStandardController {
     public Result<List<GradingStandardVO>> getPublishedGradingStandards() {
         List<GradingStandardVO> standards = gradingStandardService.getPublishedGradingStandards();
         return Result.success(standards);
+    }
+
+    // ========== 兼容前端路径的接口 ==========
+
+    @PostMapping("/create")
+    @AuditLog(operationType = OperationTypeEnum.CREATE, objectType = ObjectTypeEnum.GRADING_STANDARD, description = "创建数据分级标准")
+    public Result<Long> createGradingStandardAlias(@Valid @RequestBody GradingStandardCreateDTO createDTO) {
+        return createGradingStandard(createDTO);
+    }
+
+    @PutMapping("/update")
+    @AuditLog(operationType = OperationTypeEnum.UPDATE, objectType = ObjectTypeEnum.GRADING_STANDARD, description = "更新数据分级标准")
+    public Result<Void> updateGradingStandardAlias(@Valid @RequestBody GradingStandardUpdateDTO updateDTO) {
+        return updateGradingStandard(updateDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @AuditLog(operationType = OperationTypeEnum.DELETE, objectType = ObjectTypeEnum.GRADING_STANDARD, description = "删除数据分级标准")
+    public Result<Void> deleteGradingStandardAlias(@PathVariable Long id) {
+        return deleteGradingStandard(id);
     }
 }

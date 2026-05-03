@@ -26,7 +26,7 @@ import java.util.List;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("/role")
 @RequiredArgsConstructor
 @Tag(name = "角色管理", description = "角色CRUD相关接口")
 public class RoleController {
@@ -129,5 +129,25 @@ public class RoleController {
     public Result<List<RoleVO>> getAllRoles() {
         List<RoleVO> roles = roleService.getAllRoles();
         return Result.success(roles);
+    }
+
+    // ========== 兼容前端路径的接口 ==========
+
+    @PostMapping("/create")
+    @AuditLog(operationType = OperationTypeEnum.CREATE, objectType = ObjectTypeEnum.ROLE, description = "创建角色")
+    public Result<Long> createRoleAlias(@Valid @RequestBody RoleCreateDTO createDTO) {
+        return createRole(createDTO);
+    }
+
+    @PutMapping("/update")
+    @AuditLog(operationType = OperationTypeEnum.UPDATE, objectType = ObjectTypeEnum.ROLE, description = "更新角色")
+    public Result<Void> updateRoleAlias(@Valid @RequestBody RoleUpdateDTO updateDTO) {
+        return updateRole(updateDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @AuditLog(operationType = OperationTypeEnum.DELETE, objectType = ObjectTypeEnum.ROLE, description = "删除角色")
+    public Result<Void> deleteAlias(@PathVariable Long id) {
+        return deleteRole(id);
     }
 }

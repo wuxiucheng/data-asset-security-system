@@ -59,6 +59,16 @@ public class DataGrading extends BaseEntity implements Serializable {
     private String securityRequirements;
 
     /**
+     * 访问控制
+     */
+    private String accessControl;
+
+    /**
+     * 保留期限
+     */
+    private String retentionPeriod;
+
+    /**
      * 排序
      */
     private Integer sortOrder;

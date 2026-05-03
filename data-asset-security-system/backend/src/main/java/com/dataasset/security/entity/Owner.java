@@ -1,5 +1,6 @@
 package com.dataasset.security.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class Owner implements Serializable {
     /**
      * 责任人ID
      */
-    @TableId(value = "owner_id")
+    @TableId(value = "owner_id", type = IdType.ASSIGN_ID)
     private Long ownerId;
 
     /**

@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -19,7 +20,6 @@ public class DepartmentCreateDTO {
     @Schema(description = "部门编码", required = true, example = "DEPT001")
     @NotBlank(message = "部门编码不能为空")
     @Size(max = 64, message = "部门编码长度不能超过64")
-    @Pattern(regexp = "^[A-Z0-9_]+$", message = "部门编码只能包含大写字母、数字和下划线")
     private String departmentCode;
 
     @Schema(description = "部门名称", required = true, example = "技术部")
@@ -36,6 +36,7 @@ public class DepartmentCreateDTO {
 
     @Schema(description = "部门描述", example = "负责技术研发工作")
     @Size(max = 500, message = "部门描述长度不能超过500")
+    @JsonAlias("description")
     private String departmentDescription;
 
     @Schema(description = "上级部门ID")

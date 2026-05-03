@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -54,8 +55,12 @@ public class DataAssetCreateDTO {
     @Size(max = 64, message = "表名长度不能超过64")
     private String tableName;
 
+    @Schema(description = "关联数据源ID")
+    private Long dataSourceId;
+
     @Schema(description = "资产描述")
     @Size(max = 500, message = "资产描述长度不能超过500")
+    @JsonAlias("description")
     private String assetDescription;
 
     @Schema(description = "责任部门ID", required = true)

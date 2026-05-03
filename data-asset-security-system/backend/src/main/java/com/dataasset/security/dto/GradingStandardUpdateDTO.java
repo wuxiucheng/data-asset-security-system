@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -25,6 +26,7 @@ public class GradingStandardUpdateDTO {
 
     @Schema(description = "标准描述")
     @Size(max = 500, message = "标准描述长度不能超过500")
+    @JsonAlias("description")
     private String standardDescription;
 
     @Schema(description = "版本号")

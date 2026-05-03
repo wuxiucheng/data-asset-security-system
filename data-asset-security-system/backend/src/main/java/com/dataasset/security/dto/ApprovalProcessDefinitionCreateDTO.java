@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +29,7 @@ public class ApprovalProcessDefinitionCreateDTO {
 
     @Schema(description = "流程定义描述")
     @Size(max = 500, message = "流程定义描述长度不能超过500")
+    @JsonAlias("description")
     private String processDefinitionDescription;
 
     @Schema(description = "流程类型", required = true)

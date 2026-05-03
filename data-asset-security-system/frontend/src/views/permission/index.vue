@@ -33,7 +33,7 @@
         row-key="permissionId"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
-        <el-table-column prop="permissionId" label="ID" width="80" />
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="permissionCode" label="权限编码" width="200" />
         <el-table-column prop="permissionName" label="权限名称" width="150" />
         <el-table-column prop="permissionType" label="权限类型" width="120">
@@ -50,7 +50,7 @@
             <el-tag v-else-if="row.permissionMethod === 'POST'" type="primary">POST</el-tag>
             <el-tag v-else-if="row.permissionMethod === 'PUT'" type="warning">PUT</el-tag>
             <el-tag v-else-if="row.permissionMethod === 'DELETE'" type="danger">DELETE</el-tag>
-            <el-tag v-else type="info">{{ row.permissionMethod }}</el-tag>
+            <span v-else style="color: #909399;">-</span>
           </template>
         </el-table-column>
         <el-table-column prop="sortOrder" label="排序" width="80" />
@@ -61,6 +61,17 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="操作" width="120" fixed="right">
+          <template #default="{ row }">
+            <el-button
+              :type="row.status === 'ACTIVE' ? 'warning' : 'success'"
+              size="small"
+              @click="handleToggleStatus(row)"
+            >
+              {{ row.status === 'ACTIVE' ? '禁用' : '启用' }}
+            </el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
   </div>
@@ -68,7 +79,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { permissionApi } from '@/api'
 
@@ -95,11 +106,40 @@ const getPermissionList = async () => {
     if (searchForm.status) params.status = searchForm.status
 
     const res = await permissionApi.getList(params)
-    tableData.value = res.data.list
+    tableData.value = res.data.list || res.data || []
   } catch (error) {
     ElMessage.error('获取权限列表失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 切换状态
+const handleToggleStatus = async (row: any) => {
+  const newStatus = row.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
+  const actionText = newStatus === 'ACTIVE' ? '启用' : '禁用'
+
+  try {
+    await ElMessageBox.confirm(
+      `确定要${actionText}权限"${row.permissionName}"吗？`,
+      '确认操作',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    // 调用API更新状态
+    await permissionApi.update({ permissionId: row.permissionId, status: newStatus })
+    
+    // 更新本地数据
+    row.status = newStatus
+    ElMessage.success(`权限已${actionText}`)
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error(`${actionText}失败`)
+    }
   }
 }
 

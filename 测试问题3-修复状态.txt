@@ -1,0 +1,50 @@
+测试问题3 - 修复状态
+
+1. role/create 400错误 [✅已修复]
+   - 移除roleCode的@Pattern(regexp="^[A-Z_]+$")严格格式验证
+   - 移除roleType的@NotBlank和@Pattern严格验证,改为@Size(max=64)
+
+2. department/create 400错误 [✅已修复]
+   - 移除departmentCode的@Pattern(regexp="^[A-Z0-9_]+$")严格格式验证
+
+3. owner/create 500错误 [✅已修复]
+   - 移除employeeNo的@NotBlank必填验证
+   - 移除departmentId的@NotNull必填验证
+
+4. 分类标准状态筛选不生效 [✅已修复]
+   - 前端状态选项值: ACTIVE→PUBLISHED, INACTIVE→ARCHIVED
+   - 前端状态显示标签: 已停用→已归档
+   - 分类标准和分级标准页面均已修复
+   - 表单中radio值: ACTIVE→PUBLISHED
+
+5. 分类标准/分级标准publish 500错误 [✅已修复]
+   - 前端API方法: POST→PUT (匹配后端@PutMapping)
+   - 前端API路径: /publish/{id}→/{id}/publish (匹配后端路径定义)
+
+6. 资产编辑更新问题 [✅已修复]
+   - DataAssetServiceImpl.updateDataAsset改为使用BeanUtils.copyProperties
+   - 确保所有字段都能被更新,包括原来为空的列
+
+7. 下载导入模板/批量导出按钮无效 [✅已修复]
+   - 前端code判断: res.code===0→res.code===200
+   - 资产页面和字段管理页面均已修复
+
+8. batchUpdate 500错误 [✅已修复]
+   - 后端batchUpdate方法参数从List<DataField>改为Map<String,Object>
+   - 支持前端发送的{fieldIds, ...batchFormData}格式
+   - 修复字段类型: isSensitive→containsSensitiveData(Boolean), nullable(Boolean)
+
+9. 统计报告categories undefined错误 [✅已修复]
+   - 后端ReportController添加departmentStats嵌套结构(categories/departments/series)
+   - 前端renderCharts添加防御性检查和局部变量引用
+
+10. 所有操作按钮添加审计日志 [✅已修复]
+    - DataAssetController: import/export方法添加@AuditLog
+    - DataFieldController: create/update/delete/batchUpdate/import方法添加@AuditLog
+    - DataGradingController: create/update/delete方法添加@AuditLog
+    - SessionController: forceLogout方法添加@AuditLog
+    - ReportController: deleteReport方法添加@AuditLog
+    - ObjectTypeEnum新增: DATA_GRADING, SESSION, REPORT
+
+=== 修复汇总 ===
+所有10个问题均已修复,后端已重新编译并启动成功。

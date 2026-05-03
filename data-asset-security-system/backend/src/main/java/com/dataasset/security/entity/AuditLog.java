@@ -32,6 +32,16 @@ public class AuditLog implements Serializable {
     private String operationType;
 
     /**
+     * 操作模块
+     */
+    private String module;
+
+    /**
+     * 操作描述
+     */
+    private String operationDescription;
+
+    /**
      * 操作人ID
      */
     private Long operatorId;

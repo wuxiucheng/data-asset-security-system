@@ -51,6 +51,11 @@ public class SysRole implements Serializable {
     private String status;
 
     /**
+     * 排序顺序
+     */
+    private Integer sortOrder;
+
+    /**
      * 创建人ID
      */
     private Long createdBy;

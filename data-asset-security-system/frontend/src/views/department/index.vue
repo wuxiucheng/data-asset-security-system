@@ -40,7 +40,7 @@
         row-key="departmentId"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
-        <el-table-column prop="departmentId" label="ID" width="80" />
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="departmentCode" label="部门编码" width="150" />
         <el-table-column prop="departmentName" label="部门名称" width="200" />
         <el-table-column prop="leaderId" label="负责人ID" width="120" />

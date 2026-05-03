@@ -155,4 +155,19 @@ public class JwtUtils {
         String username = claims.getSubject();
         return generateToken(userId, username);
     }
+
+    /**
+     * 获取Token过期时间
+     *
+     * @param token Token
+     * @return 过期时间（毫秒时间戳）
+     */
+    public Long getExpirationFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        if (claims == null) {
+            return null;
+        }
+        Date expiration = claims.getExpiration();
+        return expiration != null ? expiration.getTime() : null;
+    }
 }

@@ -246,17 +246,17 @@ public class GradingStandardServiceImpl extends ServiceImpl<GradingStandardMappe
 
         // 查询创建人姓名
         if (standard.getCreatorId() != null) {
-            User creator = userMapper.selectById(standard.getCreatorId());
+            SysUser creator = userMapper.selectById(standard.getCreatorId());
             if (creator != null) {
-                vo.setCreatorName(creator.getUserName());
+                vo.setCreatorName(creator.getUsername());
             }
         }
 
         // 查询更新人姓名
         if (standard.getUpdaterId() != null) {
-            User updater = userMapper.selectById(standard.getUpdaterId());
+            SysUser updater = userMapper.selectById(standard.getUpdaterId());
             if (updater != null) {
-                vo.setUpdaterName(updater.getUserName());
+                vo.setUpdaterName(updater.getUsername());
             }
         }
 

@@ -87,7 +87,7 @@
               <el-icon><Download /></el-icon> 导出Excel
             </el-button>
             <el-button type="warning" @click="handleExportPDF" :disabled="!statisticsData">
-              <el-icon><Download /></el-icon> 导出文本报告
+              <el-icon><Download /></el-icon> 导出PDF
             </el-button>
           </div>
         </div>
@@ -309,6 +309,12 @@ const handleGenerateReport = async () => {
 
 // 渲染图表
 const renderCharts = () => {
+  // 防御性检查
+  if (!statisticsData.value) return
+  const classificationDistribution = statisticsData.value.classificationDistribution || []
+  const gradingDistribution = statisticsData.value.gradingDistribution || []
+  const departmentStats = statisticsData.value.departmentStats || { categories: [], departments: [], series: [] }
+
   // 分类分布饼图
   if (classificationChartRef.value) {
     classificationChart = echarts.init(classificationChartRef.value)
@@ -329,7 +335,7 @@ const renderCharts = () => {
           name: '分类分布',
           type: 'pie',
           radius: '50%',
-          data: statisticsData.value.classificationDistribution,
+          data: classificationDistribution,
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
@@ -355,7 +361,7 @@ const renderCharts = () => {
       },
       xAxis: {
         type: 'category',
-        data: statisticsData.value.gradingDistribution.map(item => item.name)
+        data: gradingDistribution.map(item => item.name)
       },
       yAxis: {
         type: 'value'
@@ -364,7 +370,7 @@ const renderCharts = () => {
         {
           name: '资产数量',
           type: 'bar',
-          data: statisticsData.value.gradingDistribution.map(item => item.value),
+          data: gradingDistribution.map(item => item.value),
           itemStyle: {
             color: function(params) {
               const colors = ['#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272']
@@ -391,7 +397,7 @@ const renderCharts = () => {
         }
       },
       legend: {
-        data: statisticsData.value.departmentStats.categories,
+        data: departmentStats.categories,
         top: '10%'
       },
       grid: {
@@ -403,12 +409,12 @@ const renderCharts = () => {
       },
       xAxis: {
         type: 'category',
-        data: statisticsData.value.departmentStats.departments
+        data: departmentStats.departments
       },
       yAxis: {
         type: 'value'
       },
-      series: statisticsData.value.departmentStats.series
+      series: departmentStats.series
     })
   }
 }
@@ -447,17 +453,19 @@ const handleExportPDF = async () => {
 
     const res = await reportApi.exportClassificationStatsReport(params)
 
-    const blob = new Blob([res.data], { type: 'text/plain;charset=utf-8' })
+    // 创建下载链接（后端返回PDF格式）
+    const blob = new Blob([res.data], { type: 'application/pdf' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${reportForm.reportName || '数据分类分级统计报告'}_${new Date().getTime()}.txt`
+    link.download = `${reportForm.reportName || '数据分类分级统计报告'}_${new Date().getTime()}.pdf`
     link.click()
+    window.URL.revokeObjectURL(url)
 
-    ElMessage.success('报告导出成功')
+    ElMessage.success('PDF导出成功')
   } catch (error) {
-    ElMessage.error('报告导出失败')
-    console.error('报告导出失败:', error)
+    ElMessage.error('PDF导出失败')
+    console.error('PDF导出失败:', error)
   }
 }
 

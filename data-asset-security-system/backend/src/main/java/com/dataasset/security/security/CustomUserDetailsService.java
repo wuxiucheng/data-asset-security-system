@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleType()))
                 .collect(Collectors.toList());
 
+        // 查询用户权限代码列表
+        List<String> permissions = new ArrayList<>();
+
         // 返回用户详情
         return new CustomUserDetails(
                 user.getUserId(),
@@ -64,7 +68,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getRealName(),
                 user.getEmail(),
                 user.getPhone(),
-                authorities
+                authorities,
+                permissions
         );
     }
 }

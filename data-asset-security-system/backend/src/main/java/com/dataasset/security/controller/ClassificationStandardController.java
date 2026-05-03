@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/classification-standards")
+@RequestMapping("/classificationStandard")
 @RequiredArgsConstructor
 @Tag(name = "数据分类标准管理", description = "数据分类标准CRUD相关接口")
 public class ClassificationStandardController {
@@ -117,5 +117,25 @@ public class ClassificationStandardController {
     public Result<List<ClassificationStandardVO>> getPublishedClassificationStandards() {
         List<ClassificationStandardVO> standards = classificationStandardService.getPublishedClassificationStandards();
         return Result.success(standards);
+    }
+
+    // ========== 兼容前端路径的接口 ==========
+
+    @PostMapping("/create")
+    @AuditLog(operationType = OperationTypeEnum.CREATE, objectType = ObjectTypeEnum.CLASSIFICATION_STANDARD, description = "创建数据分类标准")
+    public Result<Long> createClassificationStandardAlias(@Valid @RequestBody ClassificationStandardCreateDTO createDTO) {
+        return createClassificationStandard(createDTO);
+    }
+
+    @PutMapping("/update")
+    @AuditLog(operationType = OperationTypeEnum.UPDATE, objectType = ObjectTypeEnum.CLASSIFICATION_STANDARD, description = "更新数据分类标准")
+    public Result<Void> updateClassificationStandardAlias(@Valid @RequestBody ClassificationStandardUpdateDTO updateDTO) {
+        return updateClassificationStandard(updateDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @AuditLog(operationType = OperationTypeEnum.DELETE, objectType = ObjectTypeEnum.CLASSIFICATION_STANDARD, description = "删除数据分类标准")
+    public Result<Void> deleteAlias(@PathVariable Long id) {
+        return deleteClassificationStandard(id);
     }
 }

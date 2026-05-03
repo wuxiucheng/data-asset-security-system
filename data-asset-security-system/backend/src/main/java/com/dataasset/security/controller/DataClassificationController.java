@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/data-classifications")
+@RequestMapping("/classification")
 @RequiredArgsConstructor
 @Tag(name = "数据分类管理", description = "数据分类CRUD相关接口")
 public class DataClassificationController {
@@ -118,5 +118,25 @@ public class DataClassificationController {
     public Result<List<DataClassificationVO>> getDataClassificationsByStandardId(@PathVariable Long standardId) {
         List<DataClassificationVO> classifications = dataClassificationService.getDataClassificationsByStandardId(standardId);
         return Result.success(classifications);
+    }
+
+    // ========== 兼容前端路径的接口 ==========
+
+    @PostMapping("/create")
+    @AuditLog(operationType = OperationTypeEnum.CREATE, objectType = ObjectTypeEnum.CLASSIFICATION_STANDARD, description = "创建数据分类")
+    public Result<Long> createDataClassificationAlias(@Valid @RequestBody DataClassificationCreateDTO createDTO) {
+        return createDataClassification(createDTO);
+    }
+
+    @PutMapping("/update")
+    @AuditLog(operationType = OperationTypeEnum.UPDATE, objectType = ObjectTypeEnum.CLASSIFICATION_STANDARD, description = "更新数据分类")
+    public Result<Void> updateDataClassificationAlias(@Valid @RequestBody DataClassificationUpdateDTO updateDTO) {
+        return updateDataClassification(updateDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @AuditLog(operationType = OperationTypeEnum.DELETE, objectType = ObjectTypeEnum.CLASSIFICATION_STANDARD, description = "删除数据分类")
+    public Result<Void> deleteAlias(@PathVariable Long id) {
+        return deleteDataClassification(id);
     }
 }

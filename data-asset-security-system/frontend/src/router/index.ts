@@ -84,10 +84,28 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '资产列表', requiresAuth: true },
       },
       {
+        path: 'datasource',
+        name: 'DataSource',
+        component: () => import('@/views/datasource/index.vue'),
+        meta: { title: '数据源配置', requiresAuth: true },
+      },
+      {
+        path: 'asset-discovery',
+        name: 'AssetDiscovery',
+        component: () => import('@/views/asset-discovery/index.vue'),
+        meta: { title: '发现资产', requiresAuth: true },
+      },
+      {
         path: 'asset-field',
         name: 'AssetField',
         component: () => import('@/views/asset-field/index.vue'),
         meta: { title: '字段管理', requiresAuth: true },
+      },
+      {
+        path: 'batch-refresh',
+        name: 'BatchRefresh',
+        component: () => import('@/views/batch-refresh/index.vue'),
+        meta: { title: '批量刷新', requiresAuth: true },
       },
       {
         path: 'statistics',
@@ -124,6 +142,24 @@ const routes: RouteRecordRaw[] = [
         name: 'Password',
         component: () => import('@/views/password/index.vue'),
         meta: { title: '修改密码', requiresAuth: true },
+      },
+      {
+        path: 'mfa',
+        name: 'Mfa',
+        component: () => import('@/views/mfa/index.vue'),
+        meta: { title: '多因素认证', requiresAuth: true },
+      },
+      {
+        path: 'session',
+        name: 'Session',
+        component: () => import('@/views/session/index.vue'),
+        meta: { title: '会话管理', requiresAuth: true },
+      },
+      {
+        path: 'audit-log',
+        name: 'AuditLog',
+        component: () => import('@/views/audit-log/index.vue'),
+        meta: { title: '审计日志', requiresAuth: true },
       },
     ],
   },

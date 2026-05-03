@@ -38,7 +38,13 @@
       <el-button type="primary" @click="handleAdd" :disabled="!searchForm.assetId">
         <el-icon><Plus /></el-icon> 新增字段
       </el-button>
-      <el-button type="success" @click="handleBatchUpdate" :disabled="!searchForm.assetId || selectedRows.length === 0">
+      <el-button type="success" @click="handleImport">
+        <el-icon><Upload /></el-icon> 批量导入
+      </el-button>
+      <el-button type="warning" @click="handleDownloadTemplate">
+        <el-icon><Download /></el-icon> 下载模板
+      </el-button>
+      <el-button type="info" @click="handleBatchUpdate" :disabled="!searchForm.assetId || selectedRows.length === 0">
         <el-icon><Operation /></el-icon> 批量更新
       </el-button>
     </div>
@@ -53,9 +59,19 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="fieldId" label="ID" width="80" />
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="fieldName" label="字段名称" width="150" />
         <el-table-column prop="fieldCode" label="字段编码" width="150" />
+        <el-table-column prop="rowCount" label="数据条数" width="120">
+          <template #default="{ row }">
+            <span v-if="refreshingFieldId === row.fieldId">
+              <el-icon class="is-loading"><Loading /></el-icon>
+            </span>
+            <span v-else-if="!currentAssetCanRefresh" style="color: #909399;">不适用</span>
+            <span v-else-if="row.rowCount != null">{{ row.rowCount.toLocaleString() }}</span>
+            <span v-else style="color: #909399;">-</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="fieldType" label="字段类型" width="120" />
         <el-table-column prop="fieldLength" label="长度" width="80" />
         <el-table-column prop="isPrimaryKey" label="主键" width="80">
@@ -91,8 +107,16 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="260" fixed="right">
           <template #default="{ row }">
+            <el-tooltip v-if="!currentAssetCanRefresh" content="所属资产需补充数据库连接信息后才可刷新" placement="top">
+              <el-button type="success" link size="small" :disabled="true">
+                <el-icon><RefreshRight /></el-icon> 刷新
+              </el-button>
+            </el-tooltip>
+            <el-button v-else type="success" link size="small" @click="handleRefreshFieldRowCount(row)" :loading="refreshingFieldId === row.fieldId">
+              <el-icon><RefreshRight /></el-icon> 刷新
+            </el-button>
             <el-button type="primary" link size="small" @click="handleEdit(row)">
               <el-icon><Edit /></el-icon> 编辑
             </el-button>
@@ -152,6 +176,42 @@
       <template #footer>
         <el-button @click="batchDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleBatchSubmit">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 批量导入对话框 -->
+    <el-dialog
+      v-model="importDialogVisible"
+      title="批量导入字段"
+      width="500px"
+    >
+      <div style="margin-bottom: 16px;">
+        <el-button type="text" @click="handleDownloadTemplate">
+          <el-icon><Download /></el-icon>
+          下载导入模板
+        </el-button>
+        <span style="color: #909399; font-size: 12px; margin-left: 8px;">
+          请按模板格式准备数据
+        </span>
+      </div>
+      <el-upload
+        :auto-upload="false"
+        :on-change="handleFileChange"
+        :limit="1"
+        accept=".csv,.xlsx,.xls"
+      >
+        <template #trigger>
+          <el-button type="primary">选择文件</el-button>
+        </template>
+        <template #tip>
+          <div style="color: #909399; font-size: 12px; margin-top: 8px;">
+            支持 .csv, .xlsx, .xls 格式，文件大小不超过 10MB
+          </div>
+        </template>
+      </el-upload>
+      <template #footer>
+        <el-button @click="importDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleImportSubmit" :loading="importLoading">导入</el-button>
       </template>
     </el-dialog>
 
@@ -239,10 +299,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Edit, Delete, Operation } from '@element-plus/icons-vue'
-import { assetFieldApi, dataAssetApi, dataClassificationApi, dataGradingApi } from '@/api'
+import { Search, Refresh, Plus, Edit, Delete, Operation, Upload, Download, RefreshRight, Loading } from '@element-plus/icons-vue'
+import { assetFieldApi, dataAssetApi, dataClassificationApi, dataGradingApi, type AssetField } from '@/api'
 
 // 搜索表单
 const searchForm = reactive({
@@ -259,13 +319,30 @@ const gradingList = ref([])
 const loading = ref(false)
 const selectedRows = ref([])
 
+// 刷新数据条数相关
+const refreshingFieldId = ref<number | null>(null)
+const currentAssetDetail = ref<any>(null)
+const currentAssetCanRefresh = computed(() => {
+  if (!currentAssetDetail.value) return false
+  const asset = currentAssetDetail.value
+  if (asset.assetType !== 'DATABASE' && asset.assetType !== 'TABLE') return false
+  // 关联了数据源配置
+  if (asset.dataSourceId && asset.tableName) return true
+  // 或自身有完整的数据库连接信息
+  if (!asset.databaseHost || !asset.databasePort || !asset.databaseName || !asset.tableName) return false
+  return true
+})
+
 // 对话框
 const dialogVisible = ref(false)
 const batchDialogVisible = ref(false)
+const importDialogVisible = ref(false)
 const dialogTitle = ref('新增字段')
 const isEdit = ref(false)
 const formRef = ref()
 const batchFormRef = ref()
+const importFile = ref()
+const importLoading = ref(false)
 
 // 表单数据
 const formData = reactive({
@@ -313,7 +390,8 @@ const formRules = {
 const getAssetList = async () => {
   try {
     const res = await dataAssetApi.getList({ pageNum: 1, pageSize: 1000 })
-    assetList.value = res.data.list.filter((item: any) => item.status === 'ACTIVE')
+    // 显示所有资产，不过滤状态（包括DRAFT和ACTIVE）
+    assetList.value = res.data.records || res.data.list || []
   } catch (error) {
     ElMessage.error('获取资产列表失败')
   }
@@ -349,6 +427,13 @@ const getFieldList = async () => {
   try {
     const res = await assetFieldApi.getFieldsByAssetId(searchForm.assetId)
     tableData.value = res.data
+    // 同步获取资产详情，用于判断刷新按钮是否可用
+    try {
+      const assetRes = await dataAssetApi.getDetail(searchForm.assetId)
+      currentAssetDetail.value = assetRes.data?.data || assetRes.data
+    } catch {
+      currentAssetDetail.value = null
+    }
   } catch (error) {
     ElMessage.error('获取字段列表失败')
   } finally {
@@ -434,6 +519,79 @@ const handleBatchSubmit = async () => {
   }
 }
 
+// 批量导入
+const handleImport = () => {
+  importDialogVisible.value = true
+}
+
+// 下载模板
+const handleDownloadTemplate = async () => {
+  try {
+    const res = await assetFieldApi.getImportTemplate()
+    if (res.code === 200) {
+      // 生成CSV模板内容
+      const columns = res.data.columns
+      let csvContent = '\uFEFF' // UTF-8 BOM
+      
+      // 添加表头
+      const headers = columns.map((col: any) => col.name).join(',')
+      csvContent += headers + '\n'
+      
+      // 添加示例行
+      const examples = columns.map((col: any) => col.example || '').join(',')
+      csvContent += examples + '\n'
+      
+      // 创建Blob对象
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      
+      // 创建下载链接
+      const link = document.createElement('a')
+      link.href = url
+      link.download = res.data.templateName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      
+      ElMessage.success('模板下载成功')
+    }
+  } catch (error) {
+    console.error('下载模板失败:', error)
+    ElMessage.error('下载模板失败')
+  }
+}
+
+// 文件选择
+const handleFileChange = (file: any) => {
+  importFile.value = file.raw
+}
+
+// 提交导入
+const handleImportSubmit = async () => {
+  if (!importFile.value) {
+    ElMessage.warning('请选择要导入的文件')
+    return
+  }
+
+  importLoading.value = true
+  try {
+    const res = await assetFieldApi.import(importFile.value)
+    if (res.code === 200) {
+      ElMessage.success(res.message || `导入成功：成功${res.data.successCount}条，失败${res.data.failCount}条`)
+      importDialogVisible.value = false
+      getFieldList()
+    } else {
+      ElMessage.error(res.message || '导入失败')
+    }
+  } catch (error) {
+    console.error('导入失败:', error)
+    ElMessage.error('导入失败')
+  } finally {
+    importLoading.value = false
+  }
+}
+
 // 删除
 const handleDelete = async (row: any) => {
   try {
@@ -467,6 +625,26 @@ const handleSubmit = async () => {
     if (error !== false) {
       ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
     }
+  }
+}
+
+// 刷新字段数据条数
+const handleRefreshFieldRowCount = async (row: any) => {
+  refreshingFieldId.value = row.fieldId
+  try {
+    const res = await assetFieldApi.refreshRowCount(row.fieldId)
+    const data = res.data
+    if (data && data.rowCount !== undefined) {
+      row.rowCount = data.rowCount
+      ElMessage.success('字段数据条数刷新成功')
+    } else {
+      ElMessage.success('刷新完成')
+    }
+  } catch (error: any) {
+    const msg = error?.response?.data?.message || error?.message || '刷新失败'
+    ElMessage.error(msg)
+  } finally {
+    refreshingFieldId.value = null
   }
 }
 

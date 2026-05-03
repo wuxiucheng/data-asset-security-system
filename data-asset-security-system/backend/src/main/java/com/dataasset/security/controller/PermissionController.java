@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/permissions")
+@RequestMapping("/permission")
 @RequiredArgsConstructor
 @Tag(name = "权限管理", description = "权限CRUD相关接口")
 public class PermissionController {

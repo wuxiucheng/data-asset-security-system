@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/owners")
+@RequestMapping("/owner")
 @RequiredArgsConstructor
 @Tag(name = "责任人管理", description = "责任人CRUD相关接口")
 public class OwnerController {
@@ -117,5 +117,25 @@ public class OwnerController {
     public Result<List<OwnerVO>> getAllOwners() {
         List<OwnerVO> owners = ownerService.getAllOwners();
         return Result.success(owners);
+    }
+
+    // ========== 兼容前端路径的接口 ==========
+
+    @PostMapping("/create")
+    @AuditLog(operationType = OperationTypeEnum.CREATE, objectType = ObjectTypeEnum.OWNER, description = "创建责任人")
+    public Result<Long> createOwnerAlias(@Valid @RequestBody OwnerCreateDTO createDTO) {
+        return createOwner(createDTO);
+    }
+
+    @PutMapping("/update")
+    @AuditLog(operationType = OperationTypeEnum.UPDATE, objectType = ObjectTypeEnum.OWNER, description = "更新责任人")
+    public Result<Void> updateOwnerAlias(@Valid @RequestBody OwnerUpdateDTO updateDTO) {
+        return updateOwner(updateDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @AuditLog(operationType = OperationTypeEnum.DELETE, objectType = ObjectTypeEnum.OWNER, description = "删除责任人")
+    public Result<Void> deleteAlias(@PathVariable Long id) {
+        return deleteOwner(id);
     }
 }

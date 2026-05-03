@@ -43,7 +43,7 @@
     <!-- 分级列表 -->
     <el-card class="table-card">
       <el-table :data="tableData" v-loading="loading" border stripe>
-        <el-table-column prop="gradingId" label="ID" width="80" />
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="gradingCode" label="分级编码" width="120" />
         <el-table-column prop="gradingName" label="分级名称" width="150" />
         <el-table-column prop="levelValue" label="等级值" width="100">

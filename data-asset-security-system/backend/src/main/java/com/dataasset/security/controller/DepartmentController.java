@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/departments")
+@RequestMapping("/department")
 @RequiredArgsConstructor
 @Tag(name = "部门管理", description = "部门CRUD相关接口")
 public class DepartmentController {
@@ -118,5 +118,25 @@ public class DepartmentController {
     public Result<Void> updateDepartmentStatus(@PathVariable Long departmentId, @RequestParam String status) {
         departmentService.updateDepartmentStatus(departmentId, status);
         return Result.success("部门状态更新成功");
+    }
+
+    // ========== 兼容前端路径的接口 ==========
+
+    @PostMapping("/create")
+    @AuditLog(operationType = OperationTypeEnum.CREATE, objectType = ObjectTypeEnum.DEPARTMENT, description = "创建部门")
+    public Result<Long> createDepartmentAlias(@Valid @RequestBody DepartmentCreateDTO createDTO) {
+        return createDepartment(createDTO);
+    }
+
+    @PutMapping("/update")
+    @AuditLog(operationType = OperationTypeEnum.UPDATE, objectType = ObjectTypeEnum.DEPARTMENT, description = "更新部门")
+    public Result<Void> updateDepartmentAlias(@Valid @RequestBody DepartmentUpdateDTO updateDTO) {
+        return updateDepartment(updateDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @AuditLog(operationType = OperationTypeEnum.DELETE, objectType = ObjectTypeEnum.DEPARTMENT, description = "删除部门")
+    public Result<Void> deleteAlias(@PathVariable Long id) {
+        return deleteDepartment(id);
     }
 }

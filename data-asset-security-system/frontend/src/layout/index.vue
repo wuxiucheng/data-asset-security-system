@@ -2,7 +2,7 @@
   <el-container class="layout-container">
     <el-aside width="200px" class="layout-aside">
       <div class="logo">
-        <h2>数据安全</h2>
+        <h2>数据资产安全管理</h2>
       </div>
       <el-menu
         :default-active="activeMenu"
@@ -25,6 +25,18 @@
           <el-menu-item index="/user">用户管理</el-menu-item>
           <el-menu-item index="/role">角色管理</el-menu-item>
           <el-menu-item index="/permission">权限管理</el-menu-item>
+          <el-menu-item index="/mfa">
+            <el-icon><Lock /></el-icon>
+            <span>多因素认证</span>
+          </el-menu-item>
+          <el-menu-item index="/session">
+            <el-icon><Monitor /></el-icon>
+            <span>会话管理</span>
+          </el-menu-item>
+          <el-menu-item index="/audit-log">
+            <el-icon><DocumentChecked /></el-icon>
+            <span>审计日志</span>
+          </el-menu-item>
         </el-sub-menu>
 
         <el-sub-menu index="responsibility">
@@ -53,6 +65,8 @@
             <span>数据资产管理</span>
           </template>
           <el-menu-item index="/asset">资产列表</el-menu-item>
+          <el-menu-item index="/datasource">数据源配置</el-menu-item>
+          <el-menu-item index="/asset-discovery">发现资产</el-menu-item>
           <el-menu-item index="/asset-field">字段管理</el-menu-item>
         </el-sub-menu>
 
@@ -130,6 +144,9 @@ import {
   Expand,
   Avatar,
   ArrowDown,
+  Lock,
+  Monitor,
+  DocumentChecked,
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 

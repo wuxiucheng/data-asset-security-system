@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2025-06-17
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @Tag(name = "用户管理", description = "用户CRUD相关接口")
 public class UserController {
@@ -130,5 +130,25 @@ public class UserController {
     public Result<Void> resetPassword(@PathVariable Long userId, @RequestParam String newPassword) {
         userService.resetPassword(userId, newPassword);
         return Result.success("密码重置成功");
+    }
+
+    // ========== 兼容前端路径的接口 ==========
+
+    @PostMapping("/create")
+    @AuditLog(operationType = OperationTypeEnum.CREATE, objectType = ObjectTypeEnum.USER, description = "创建用户")
+    public Result<Long> createUserAlias(@Valid @RequestBody UserCreateDTO createDTO) {
+        return createUser(createDTO);
+    }
+
+    @PutMapping("/update")
+    @AuditLog(operationType = OperationTypeEnum.UPDATE, objectType = ObjectTypeEnum.USER, description = "更新用户")
+    public Result<Void> updateUserAlias(@Valid @RequestBody UserUpdateDTO updateDTO) {
+        return updateUser(updateDTO);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @AuditLog(operationType = OperationTypeEnum.DELETE, objectType = ObjectTypeEnum.USER, description = "删除用户")
+    public Result<Void> deleteAlias(@PathVariable Long id) {
+        return deleteUser(id);
     }
 }

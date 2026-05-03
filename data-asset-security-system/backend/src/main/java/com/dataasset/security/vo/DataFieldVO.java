@@ -72,6 +72,9 @@ public class DataFieldVO {
     @Schema(description = "状态：ACTIVE, INACTIVE")
     private String status;
 
+    @Schema(description = "数据条数，记录该字段在对应数据表中非空值的记录条数")
+    private Long rowCount;
+
     @Schema(description = "创建时间")
     private LocalDateTime createdTime;
 

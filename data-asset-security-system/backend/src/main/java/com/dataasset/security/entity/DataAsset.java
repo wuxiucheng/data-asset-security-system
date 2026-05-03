@@ -68,6 +68,11 @@ public class DataAsset extends BaseEntity implements Serializable {
     private String tableName;
 
     /**
+     * 关联数据源ID
+     */
+    private Long dataSourceId;
+
+    /**
      * 资产描述
      */
     private String assetDescription;
@@ -141,6 +146,11 @@ public class DataAsset extends BaseEntity implements Serializable {
      * 过期时间
      */
     private LocalDateTime expireTime;
+
+    /**
+     * 数据条数，记录该资产对应数据表的记录总行数
+     */
+    private Long rowCount;
 
     /**
      * 备注

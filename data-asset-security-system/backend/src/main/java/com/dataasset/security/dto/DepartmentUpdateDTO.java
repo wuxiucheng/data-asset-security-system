@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -33,6 +34,7 @@ public class DepartmentUpdateDTO {
 
     @Schema(description = "部门描述", example = "负责技术研发工作")
     @Size(max = 500, message = "部门描述长度不能超过500")
+    @JsonAlias("description")
     private String departmentDescription;
 
     @Schema(description = "上级部门ID")

@@ -46,7 +46,7 @@
     <!-- 分类列表 -->
     <el-card class="table-card">
       <el-table :data="tableData" v-loading="loading" border stripe>
-        <el-table-column prop="classificationId" label="ID" width="80" />
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="classificationCode" label="分类编码" width="150" />
         <el-table-column prop="classificationName" label="分类名称" width="200" />
         <el-table-column prop="level" label="层级" width="80" />
@@ -224,7 +224,7 @@ const formRules = {
 const getStandardList = async () => {
   try {
     const res = await classificationStandardApi.getList({ pageNum: 1, pageSize: 1000 })
-    standardList.value = res.data.list.filter((item: any) => item.status === 'ACTIVE')
+    standardList.value = res.data.list.filter((item: any) => item.status === 'PUBLISHED' || item.status === 'ACTIVE')
   } catch (error) {
     ElMessage.error('获取标准列表失败')
   }

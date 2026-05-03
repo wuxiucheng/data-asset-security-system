@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -28,6 +29,7 @@ public class RoleUpdateDTO {
 
     @Schema(description = "角色描述", example = "负责分类分级标准制定和维护")
     @Size(max = 500, message = "角色描述长度不能超过500")
+    @JsonAlias("description")
     private String roleDescription;
 
     @Schema(description = "角色类型：SYSTEM_ADMIN, DATA_ADMIN, APPROVER, OWNER, USER")

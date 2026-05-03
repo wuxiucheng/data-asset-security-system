@@ -1,6 +1,5 @@
 package com.dataasset.security.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -11,14 +10,37 @@ import lombok.Data;
  * @since 2025-06-17
  */
 @Data
-@Schema(description = "登录请求")
 public class LoginDTO {
 
-    @Schema(description = "用户名", required = true, example = "admin")
+    /**
+     * 用户名
+     */
     @NotBlank(message = "用户名不能为空")
     private String username;
 
-    @Schema(description = "密码", required = true, example = "123456")
+    /**
+     * 密码
+     */
     @NotBlank(message = "密码不能为空")
     private String password;
+
+    /**
+     * 验证码
+     */
+    private String captcha;
+
+    /**
+     * 验证码Key
+     */
+    private String captchaKey;
+
+    /**
+     * MFA验证码（如果启用了多因素认证）
+     */
+    private String mfaCode;
+
+    /**
+     * 记住我
+     */
+    private Boolean rememberMe = false;
 }

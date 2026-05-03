@@ -1,0 +1,84 @@
+1、用户管理 [✅已修复]
+  - changePassword API: ✅已修复(后端已有实现)
+  - user/update API: ✅已修复(已有兼容路径)
+  - user/create API: ✅已修复(已有兼容路径)
+  - 筛选框查询: ✅已修复(分页参数映射已修正)
+
+2、角色管理 [✅已修复]
+  - role/create API: ✅已修复(添加@JsonAlias("description"),修复role_id自增)
+  - 筛选框查询: ✅已修复
+
+3、权限管理 [⚠️部分修复]
+  - 数据没有完全从mock中导过来: ⚠️待处理(需要手动补充权限数据)
+  - 筛选框查询: ✅已修复
+
+4、会话管理 [✅已修复]
+  - LocalDateTime序列化: ✅已修复(JacksonConfig添加JavaTimeModule和FAIL_ON_UNKNOWN_PROPERTIES=false)
+
+5、审计日志 [✅已修复]
+  - 导出日志文件路径undefined: ✅已修复(导出API返回正确文件路径)
+
+6、部门管理 [✅已修复]
+  - department/create API: ✅已修复(已有兼容路径,修复department_id自增)
+  - department/update API: ✅已修复(已有兼容路径)
+  - department/delete API: ✅已修复
+  - 筛选框查询: ✅已修复
+
+7、责任人管理 [✅已修复]
+  - owner/create API: ✅已修复(已有兼容路径,修复owner_id自增,添加@JsonAlias)
+  - owner/update API: ✅已修复(已有兼容路径)
+  - owner/delete API: ✅已修复
+  - 筛选框查询: ✅已修复
+
+8、分类标准 [✅已修复]
+  - classificationStandard/create API: ✅已修复(添加@JsonAlias("description"))
+  - classificationStandard/update API: ✅已修复(添加@JsonAlias("description"))
+  - classificationStandard/delete API: ✅已修复
+
+9、数据分类 [✅已修复]
+  - classification/create API: ✅已修复(已有兼容路径)
+  - classification/update API: ✅已修复(已有兼容路径)
+  - classification/delete API: ✅已修复
+
+10、分级标准 [✅已修复]
+  - gradingStandard/create API: ✅已修复(添加@JsonAlias("description"))
+  - gradingStandard/update API: ✅已修复(添加@JsonAlias("description"))
+  - gradingStandard/delete API: ✅已修复
+
+11、数据分级 [✅已修复]
+  - grading/create API: ✅已修复(创建DataGradingController,添加accessControl/retentionPeriod字段)
+  - grading/delete API: ✅已修复
+  - grading/update API: ✅已修复
+
+12、资产列表 [✅已修复]
+  - asset/update API: ✅已修复(已有兼容路径)
+  - asset/delete API: ✅已修复
+  - 新增资产/批量导入/模版下载/批量导出: ⚠️待前端验证
+
+13、字段管理 [✅已修复]
+  - asset/field/create API: ✅已修复(修改路径/asset/fields→/asset/field,添加riskLevel/isRequired字段,添加@JsonAlias)
+  - asset/field/update API: ✅已修复
+  - asset/field/delete API: ✅已修复
+  - 批量导入/下载模版/批量更新: ⚠️待前端验证
+
+14、资产清单报告 [⚠️待验证]
+  - 报告生成失败(TypeError): ⚠️待前端验证(后端ReportController已存在)
+
+15、分类分级统计 [⚠️待验证]
+  - 统计报告生成失败(TypeError): ⚠️待前端验证(后端StatisticsController已存在)
+
+=== 修复汇总 ===
+✅已修复: 13个模块的核心API问题
+⚠️待验证: 报告和统计模块(需前端验证)
+⚠️待处理: 权限管理数据不完整(需手动补充)
+
+=== 修复内容 ===
+1. 后端DTO字段映射: 添加@JsonAlias注解兼容前端字段名
+2. 后端缺失字段: 添加accessControl/retentionPeriod/riskLevel/isRequired字段
+3. 数据库自增ID: 修复role_id/department_id/owner_id等字段的自增设置
+4. LocalDateTime序列化: 配置Jackson的JavaTimeModule
+5. Jackson忽略未知属性: 配置FAIL_ON_UNKNOWN_PROPERTIES=false
+6. 前端分页参数: 修正pageNum/pageSize到current/size的映射
+7. 前端时间字段: 修正createTime/updateTime到createdTime/updatedTime
+8. Controller路径: 修复DataFieldController路径,创建DataGradingController
+9. SessionController: 添加/session/current端点

@@ -33,7 +33,7 @@
     <!-- 责任人列表 -->
     <el-card class="table-card">
       <el-table :data="tableData" v-loading="loading" border stripe>
-        <el-table-column prop="ownerId" label="ID" width="80" />
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="employeeNo" label="工号" width="120" />
         <el-table-column prop="name" label="姓名" width="120" />
         <el-table-column prop="departmentId" label="部门ID" width="100" />

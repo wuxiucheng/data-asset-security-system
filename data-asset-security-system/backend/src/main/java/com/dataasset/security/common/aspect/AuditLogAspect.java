@@ -104,41 +104,56 @@ public class AuditLogAspect {
                                String operationResult, String errorMessage, long startTime) {
         try {
             // 构建审计日志对象
-            com.dataasset.security.entity.AuditLog log = new com.dataasset.security.entity.AuditLog();
+            com.dataasset.security.entity.AuditLog auditLogEntity = new com.dataasset.security.entity.AuditLog();
 
             // 操作类型
             OperationTypeEnum operationType = auditLog.operationType();
-            log.setOperationType(operationType.getCode());
+            auditLogEntity.setOperationType(operationType.getCode());
 
             // 操作人信息
-            log.setOperatorId(userDetails.getUserId());
-            log.setOperatorName(userDetails.getRealName());
+            auditLogEntity.setOperatorId(userDetails.getUserId());
+            auditLogEntity.setOperatorName(userDetails.getRealName());
 
             // 操作时间
-            log.setOperationTime(LocalDateTime.now());
+            auditLogEntity.setOperationTime(LocalDateTime.now());
 
             // 操作对象类型
             ObjectTypeEnum objectType = auditLog.objectType();
-            log.setObjectType(objectType.getCode());
+            auditLogEntity.setObjectType(objectType.getCode());
+
+            // 模块名称
+            auditLogEntity.setModule(objectType.getDescription());
+
+            // 操作描述
+            String description = auditLog.description();
+            if (description != null && !description.isEmpty()) {
+                auditLogEntity.setOperationDescription(description);
+            }
+
+            // 对象名称 - 尝试从参数中提取
+            String objectName = extractObjectName(joinPoint);
+            if (objectName != null) {
+                auditLogEntity.setObjectName(objectName);
+            }
 
             // 操作内容
             String operationContent = buildOperationContent(joinPoint, auditLog, errorMessage);
-            log.setOperationContent(operationContent);
+            auditLogEntity.setOperationContent(operationContent);
 
             // 操作结果
-            log.setOperationResult(operationResult);
+            auditLogEntity.setOperationResult(operationResult);
 
             // 请求信息
-            log.setIpAddress(getClientIpAddress(request));
-            log.setUserAgent(request.getHeader("User-Agent"));
-            log.setRequestMethod(request.getMethod());
-            log.setRequestUrl(request.getRequestURI());
+            auditLogEntity.setIpAddress(getClientIpAddress(request));
+            auditLogEntity.setUserAgent(request.getHeader("User-Agent"));
+            auditLogEntity.setRequestMethod(request.getMethod());
+            auditLogEntity.setRequestUrl(request.getRequestURI());
 
             // 创建时间
-            log.setCreatedTime(LocalDateTime.now());
+            auditLogEntity.setCreatedTime(LocalDateTime.now());
 
             // 保存审计日志（异步处理）
-            auditLogService.saveLog(log);
+            auditLogService.saveLog(auditLogEntity);
 
             log.debug("审计日志记录成功：{}", operationContent);
 
@@ -201,5 +216,62 @@ public class AuditLogAspect {
             ipAddress = ipAddress.split(",")[0].trim();
         }
         return ipAddress;
+    }
+
+    /**
+     * 从方法参数中提取对象名称
+     */
+    private String extractObjectName(ProceedingJoinPoint joinPoint) {
+        try {
+            Object[] args = joinPoint.getArgs();
+            if (args != null && args.length > 0) {
+                for (Object arg : args) {
+                    if (arg == null) continue;
+                    // 尝试通过反射获取name字段
+                    try {
+                        java.lang.reflect.Method getNameMethod = arg.getClass().getMethod("getName");
+                        Object nameValue = getNameMethod.invoke(arg);
+                        if (nameValue instanceof String && !((String) nameValue).isEmpty()) {
+                            return (String) nameValue;
+                        }
+                    } catch (NoSuchMethodException e) {
+                        // 忽略，尝试其他字段
+                    }
+                    // 尝试获取roleName字段
+                    try {
+                        java.lang.reflect.Method getRoleNameMethod = arg.getClass().getMethod("getRoleName");
+                        Object nameValue = getRoleNameMethod.invoke(arg);
+                        if (nameValue instanceof String && !((String) nameValue).isEmpty()) {
+                            return (String) nameValue;
+                        }
+                    } catch (NoSuchMethodException e) {
+                        // 忽略
+                    }
+                    // 尝试获取standardName字段
+                    try {
+                        java.lang.reflect.Method getStandardNameMethod = arg.getClass().getMethod("getStandardName");
+                        Object nameValue = getStandardNameMethod.invoke(arg);
+                        if (nameValue instanceof String && !((String) nameValue).isEmpty()) {
+                            return (String) nameValue;
+                        }
+                    } catch (NoSuchMethodException e) {
+                        // 忽略
+                    }
+                    // 尝试获取assetName字段
+                    try {
+                        java.lang.reflect.Method getAssetNameMethod = arg.getClass().getMethod("getAssetName");
+                        Object nameValue = getAssetNameMethod.invoke(arg);
+                        if (nameValue instanceof String && !((String) nameValue).isEmpty()) {
+                            return (String) nameValue;
+                        }
+                    } catch (NoSuchMethodException e) {
+                        // 忽略
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // 忽略所有异常
+        }
+        return null;
     }
 }

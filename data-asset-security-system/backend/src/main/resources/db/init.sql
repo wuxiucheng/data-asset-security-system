@@ -239,7 +239,31 @@ CREATE TABLE IF NOT EXISTS data_grading (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据分级表';
 
--- 13. 数据资产表
+-- 13. 数据源配置表
+CREATE TABLE IF NOT EXISTS data_source_config (
+    data_source_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '数据源ID',
+    data_source_name VARCHAR(128) NOT NULL COMMENT '数据源名称',
+    database_type VARCHAR(32) NOT NULL COMMENT '数据库类型：MYSQL, ORACLE, POSTGRESQL, SQLSERVER',
+    host VARCHAR(128) NOT NULL COMMENT '数据库地址',
+    port INT NOT NULL COMMENT '数据库端口',
+    database_name VARCHAR(64) NOT NULL COMMENT '数据库名称',
+    username VARCHAR(64) COMMENT '用户名',
+    password VARCHAR(256) COMMENT '密码（加密存储）',
+    connection_params VARCHAR(500) COMMENT '额外连接参数',
+    status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态：ACTIVE, INACTIVE',
+    last_test_time DATETIME COMMENT '最后测试连接时间',
+    last_test_result VARCHAR(500) COMMENT '最后测试连接结果',
+    remarks VARCHAR(500) COMMENT '备注',
+    creator_id BIGINT COMMENT '创建人ID',
+    updater_id BIGINT COMMENT '更新人ID',
+    created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted TINYINT(1) NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除，1-已删除',
+    INDEX idx_database_type (database_type),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据源配置表';
+
+-- 14. 数据资产表
 CREATE TABLE IF NOT EXISTS data_asset (
     asset_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '资产ID',
     asset_name VARCHAR(128) NOT NULL COMMENT '资产名称',
@@ -251,6 +275,7 @@ CREATE TABLE IF NOT EXISTS data_asset (
     database_port INT COMMENT '数据库端口',
     database_name VARCHAR(64) COMMENT '数据库名称',
     table_name VARCHAR(64) COMMENT '表名',
+    data_source_id BIGINT COMMENT '关联数据源ID',
     asset_description VARCHAR(500) COMMENT '资产描述',
     department_id BIGINT COMMENT '责任部门ID',
     owner_id BIGINT COMMENT '责任人ID',
@@ -266,6 +291,7 @@ CREATE TABLE IF NOT EXISTS data_asset (
     last_scan_time DATETIME COMMENT '最后扫描时间',
     last_scan_result VARCHAR(500) COMMENT '最后扫描结果',
     expire_time DATETIME COMMENT '过期时间',
+    row_count BIGINT COMMENT '数据条数，记录该资产对应数据表的记录总行数',
     remarks VARCHAR(500) COMMENT '备注',
     creator_id BIGINT COMMENT '创建人ID',
     updater_id BIGINT COMMENT '更新人ID',
@@ -298,6 +324,7 @@ CREATE TABLE IF NOT EXISTS data_field (
     default_value VARCHAR(256) COMMENT '默认值',
     sort_order INT NOT NULL DEFAULT 0 COMMENT '排序',
     status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态：ACTIVE, INACTIVE',
+    row_count BIGINT COMMENT '数据条数，记录该字段在对应数据表中非空值的记录条数',
     created_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     deleted TINYINT(1) NOT NULL DEFAULT 0 COMMENT '删除标记：0-未删除，1-已删除',

@@ -1,0 +1,668 @@
+{
+  "users": [
+    {
+      "userId": 1,
+      "username": "admin",
+      "realName": "系统管理员",
+      "email": "admin@example.com",
+      "phone": "13800138000",
+      "status": "ACTIVE",
+      "roleIds": [
+        1,
+        2
+      ]
+    },
+    {
+      "userId": 2,
+      "username": "user1",
+      "realName": "张三",
+      "email": "zhangsan@example.com",
+      "phone": "13800138001",
+      "status": "ACTIVE",
+      "roleIds": [
+        5
+      ]
+    },
+    {
+      "userId": 3,
+      "username": "user2",
+      "realName": "李四",
+      "email": "lisi@example.com",
+      "phone": "13800138002",
+      "status": "ACTIVE",
+      "roleIds": [
+        4,
+        5
+      ]
+    },
+    {
+      "userId": 4,
+      "username": "user3",
+      "realName": "王五",
+      "email": "wangwu@example.com",
+      "phone": "13800138003",
+      "status": "INACTIVE",
+      "roleIds": [
+        5
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "roleId": 1,
+      "roleCode": "SYSTEM_ADMIN",
+      "roleName": "系统管理员",
+      "roleType": "SYSTEM_ADMIN",
+      "status": "ACTIVE",
+      "roleDescription": "负责系统配置和用户管理"
+    },
+    {
+      "roleId": 2,
+      "roleCode": "DATA_ADMIN",
+      "roleName": "数据管理员",
+      "roleType": "DATA_ADMIN",
+      "status": "ACTIVE",
+      "roleDescription": "负责分类分级标准制定和维护"
+    },
+    {
+      "roleId": 3,
+      "roleCode": "APPROVER",
+      "roleName": "数据审批人",
+      "roleType": "APPROVER",
+      "status": "ACTIVE",
+      "roleDescription": "负责分类分级申请审批"
+    },
+    {
+      "roleId": 4,
+      "roleCode": "OWNER",
+      "roleName": "数据责任人",
+      "roleType": "OWNER",
+      "status": "ACTIVE",
+      "roleDescription": "负责数据资产的日常维护和管理"
+    },
+    {
+      "roleId": 5,
+      "roleCode": "USER",
+      "roleName": "普通用户",
+      "roleType": "USER",
+      "status": "ACTIVE",
+      "roleDescription": "查看已授权的数据资产信息"
+    }
+  ],
+  "permissions": [
+    {
+      "permissionId": 1,
+      "permissionCode": "system",
+      "permissionName": "系统管理",
+      "permissionType": "MENU",
+      "permissionUrl": "/system",
+      "permissionMethod": null,
+      "parentId": null,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 2,
+      "permissionCode": "system:user",
+      "permissionName": "用户管理",
+      "permissionType": "MENU",
+      "permissionUrl": "/user",
+      "permissionMethod": null,
+      "parentId": 1,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 3,
+      "permissionCode": "system:user:create",
+      "permissionName": "创建用户",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/user/create",
+      "permissionMethod": "POST",
+      "parentId": 2,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 4,
+      "permissionCode": "system:user:edit",
+      "permissionName": "编辑用户",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/user/update",
+      "permissionMethod": "PUT",
+      "parentId": 2,
+      "sortOrder": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 5,
+      "permissionCode": "system:user:delete",
+      "permissionName": "删除用户",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/user/delete",
+      "permissionMethod": "DELETE",
+      "parentId": 2,
+      "sortOrder": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 6,
+      "permissionCode": "system:user:view",
+      "permissionName": "查看用户",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/user/list",
+      "permissionMethod": "GET",
+      "parentId": 2,
+      "sortOrder": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 7,
+      "permissionCode": "system:role",
+      "permissionName": "角色管理",
+      "permissionType": "MENU",
+      "permissionUrl": "/role",
+      "permissionMethod": null,
+      "parentId": 1,
+      "sortOrder": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 8,
+      "permissionCode": "system:role:create",
+      "permissionName": "创建角色",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/role/create",
+      "permissionMethod": "POST",
+      "parentId": 7,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 9,
+      "permissionCode": "system:role:edit",
+      "permissionName": "编辑角色",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/role/update",
+      "permissionMethod": "PUT",
+      "parentId": 7,
+      "sortOrder": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 10,
+      "permissionCode": "system:role:delete",
+      "permissionName": "删除角色",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/role/delete",
+      "permissionMethod": "DELETE",
+      "parentId": 7,
+      "sortOrder": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 11,
+      "permissionCode": "system:role:view",
+      "permissionName": "查看角色",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/role/list",
+      "permissionMethod": "GET",
+      "parentId": 7,
+      "sortOrder": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 12,
+      "permissionCode": "system:permission",
+      "permissionName": "权限管理",
+      "permissionType": "MENU",
+      "permissionUrl": "/permission",
+      "permissionMethod": null,
+      "parentId": 1,
+      "sortOrder": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 13,
+      "permissionCode": "system:permission:view",
+      "permissionName": "查看权限",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/permission/list",
+      "permissionMethod": "GET",
+      "parentId": 12,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 14,
+      "permissionCode": "data",
+      "permissionName": "数据资产管理",
+      "permissionType": "MENU",
+      "permissionUrl": "/data",
+      "permissionMethod": null,
+      "parentId": null,
+      "sortOrder": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 15,
+      "permissionCode": "data:asset",
+      "permissionName": "资产列表",
+      "permissionType": "MENU",
+      "permissionUrl": "/asset",
+      "permissionMethod": null,
+      "parentId": 14,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 16,
+      "permissionCode": "data:asset:create",
+      "permissionName": "创建资产",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/asset/create",
+      "permissionMethod": "POST",
+      "parentId": 15,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 17,
+      "permissionCode": "data:asset:edit",
+      "permissionName": "编辑资产",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/asset/update",
+      "permissionMethod": "PUT",
+      "parentId": 15,
+      "sortOrder": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 18,
+      "permissionCode": "data:asset:delete",
+      "permissionName": "删除资产",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/asset/delete",
+      "permissionMethod": "DELETE",
+      "parentId": 15,
+      "sortOrder": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 19,
+      "permissionCode": "data:asset:export",
+      "permissionName": "导出资产",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/asset/export",
+      "permissionMethod": "GET",
+      "parentId": 15,
+      "sortOrder": 4,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 20,
+      "permissionCode": "data:classification",
+      "permissionName": "分类分级管理",
+      "permissionType": "MENU",
+      "permissionUrl": "/classification",
+      "permissionMethod": null,
+      "parentId": 14,
+      "sortOrder": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 21,
+      "permissionCode": "data:classification:view",
+      "permissionName": "查看分类",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/classification/list",
+      "permissionMethod": "GET",
+      "parentId": 20,
+      "sortOrder": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "permissionId": 22,
+      "permissionCode": "data:classification:create",
+      "permissionName": "创建分类",
+      "permissionType": "BUTTON",
+      "permissionUrl": "/api/classification/create",
+      "permissionMethod": "POST",
+      "parentId": 20,
+      "sortOrder": 2,
+      "status": "ACTIVE"
+    }
+  ],
+  "departments": [
+    {
+      "departmentId": 1,
+      "departmentCode": "ROOT",
+      "departmentName": "根部门",
+      "parentId": null,
+      "status": "ACTIVE",
+      "leaderId": 1,
+      "contactPhone": "13800138000"
+    },
+    {
+      "departmentId": 2,
+      "departmentCode": "DEPT001",
+      "departmentName": "技术部",
+      "parentId": 1,
+      "status": "ACTIVE",
+      "leaderId": 2,
+      "contactPhone": "13800138001"
+    },
+    {
+      "departmentId": 3,
+      "departmentCode": "DEPT002",
+      "departmentName": "业务部",
+      "parentId": 1,
+      "status": "ACTIVE",
+      "leaderId": 3,
+      "contactPhone": "13800138002"
+    },
+    {
+      "departmentId": 4,
+      "departmentCode": "DEPT003",
+      "departmentName": "财务部",
+      "parentId": 1,
+      "status": "ACTIVE",
+      "leaderId": 4,
+      "contactPhone": "13800138003"
+    },
+    {
+      "departmentId": 5,
+      "departmentCode": "DEPT004",
+      "departmentName": "研发组",
+      "parentId": 2,
+      "status": "ACTIVE",
+      "leaderId": 2,
+      "contactPhone": "13800138001"
+    }
+  ],
+  "owners": [
+    {
+      "ownerId": 1,
+      "employeeNo": "ADMIN001",
+      "name": "系统管理员",
+      "departmentId": 1,
+      "position": "系统管理员",
+      "contactPhone": "13800138000",
+      "email": "admin@example.com",
+      "status": "ACTIVE"
+    },
+    {
+      "ownerId": 2,
+      "employeeNo": "EMP001",
+      "name": "张三",
+      "departmentId": 2,
+      "position": "技术主管",
+      "contactPhone": "13800138001",
+      "email": "zhangsan@example.com",
+      "status": "ACTIVE"
+    },
+    {
+      "ownerId": 3,
+      "employeeNo": "EMP002",
+      "name": "李四",
+      "departmentId": 3,
+      "position": "业务主管",
+      "contactPhone": "13800138002",
+      "email": "lisi@example.com",
+      "status": "ACTIVE"
+    },
+    {
+      "ownerId": 4,
+      "employeeNo": "EMP003",
+      "name": "王五",
+      "departmentId": 4,
+      "position": "财务主管",
+      "contactPhone": "13800138003",
+      "email": "wangwu@example.com",
+      "status": "ACTIVE"
+    }
+  ],
+  "assets": [
+    {
+      "assetId": 1,
+      "assetCode": "ASSET001",
+      "assetName": "客户信息表",
+      "assetType": "DATABASE",
+      "systemName": "CRM系统",
+      "databaseType": "MYSQL",
+      "databaseName": "crm_db",
+      "tableName": "customer_info",
+      "status": "ACTIVE",
+      "departmentId": 2,
+      "ownerId": 2,
+      "classificationId": 2,
+      "gradingId": 2
+    },
+    {
+      "assetId": 2,
+      "assetCode": "ASSET002",
+      "assetName": "订单数据表",
+      "assetType": "DATABASE",
+      "systemName": "订单系统",
+      "databaseType": "MYSQL",
+      "databaseName": "order_db",
+      "tableName": "order_info",
+      "status": "ACTIVE",
+      "departmentId": 3,
+      "ownerId": 3,
+      "classificationId": 3,
+      "gradingId": 2
+    },
+    {
+      "assetId": 3,
+      "assetCode": "ASSET003",
+      "assetName": "财务报表文件",
+      "assetType": "FILE",
+      "systemName": "财务系统",
+      "databaseType": null,
+      "databaseName": null,
+      "tableName": null,
+      "status": "ACTIVE",
+      "departmentId": 4,
+      "ownerId": 4,
+      "classificationId": 4,
+      "gradingId": 3
+    },
+    {
+      "assetId": 4,
+      "assetCode": "ASSET004",
+      "assetName": "员工信息API",
+      "assetType": "API",
+      "systemName": "人事系统",
+      "databaseType": null,
+      "databaseName": null,
+      "tableName": null,
+      "status": "ACTIVE",
+      "departmentId": 5,
+      "ownerId": 2,
+      "classificationId": 5,
+      "gradingId": 2
+    }
+  ],
+  "classifications": [
+    {
+      "classificationId": 1,
+      "standardId": 1,
+      "classificationCode": "BIZ",
+      "classificationName": "业务数据",
+      "parentId": null,
+      "level": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "classificationId": 2,
+      "standardId": 1,
+      "classificationCode": "BIZ_CUST",
+      "classificationName": "客户数据",
+      "parentId": 1,
+      "level": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "classificationId": 3,
+      "standardId": 1,
+      "classificationCode": "BIZ_PROD",
+      "classificationName": "产品数据",
+      "parentId": 1,
+      "level": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "classificationId": 4,
+      "standardId": 1,
+      "classificationCode": "FIN",
+      "classificationName": "财务数据",
+      "parentId": null,
+      "level": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "classificationId": 5,
+      "standardId": 1,
+      "classificationCode": "HR",
+      "classificationName": "人力资源数据",
+      "parentId": null,
+      "level": 1,
+      "status": "ACTIVE"
+    }
+  ],
+  "gradings": [
+    {
+      "gradingId": 1,
+      "standardId": 1,
+      "gradingCode": "L1",
+      "gradingName": "一级",
+      "gradingDescription": "公开数据，无敏感信息",
+      "levelValue": 1,
+      "status": "ACTIVE"
+    },
+    {
+      "gradingId": 2,
+      "standardId": 1,
+      "gradingCode": "L2",
+      "gradingName": "二级",
+      "gradingDescription": "内部数据，仅限内部使用",
+      "levelValue": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "gradingId": 3,
+      "standardId": 1,
+      "gradingCode": "L3",
+      "gradingName": "三级",
+      "gradingDescription": "敏感数据，包含个人信息",
+      "levelValue": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "gradingId": 4,
+      "standardId": 1,
+      "gradingCode": "L4",
+      "gradingName": "四级",
+      "gradingDescription": "核心数据，关系企业生存",
+      "levelValue": 4,
+      "status": "ACTIVE"
+    }
+  ],
+  "classificationStandards": [
+    {
+      "standardId": 1,
+      "standardCode": "STD001",
+      "standardName": "数据资产分类标准V1.0",
+      "standardDescription": "数据资产分类分级管理标准",
+      "version": "1.0",
+      "publishDate": "2025-01-01",
+      "status": "ACTIVE"
+    },
+    {
+      "standardId": 2,
+      "standardCode": "STD002",
+      "standardName": "数据资产分类标准V2.0",
+      "standardDescription": "数据资产分类分级管理标准升级版",
+      "version": "2.0",
+      "publishDate": "2025-06-01",
+      "status": "DRAFT"
+    }
+  ],
+  "gradingStandards": [
+    {
+      "standardId": 1,
+      "standardCode": "GRD001",
+      "standardName": "数据资产分级标准V1.0",
+      "standardDescription": "数据资产安全等级标准",
+      "version": "1.0",
+      "publishDate": "2025-01-01",
+      "status": "ACTIVE"
+    }
+  ],
+  "rolePermissions": [],
+  "userRoles": [
+    {
+      "userId": 1,
+      "roleId": 1
+    },
+    {
+      "userId": 1,
+      "roleId": 2
+    },
+    {
+      "userId": 2,
+      "roleId": 5
+    },
+    {
+      "userId": 3,
+      "roleId": 4
+    },
+    {
+      "userId": 3,
+      "roleId": 5
+    },
+    {
+      "userId": 4,
+      "roleId": 5
+    }
+  ],
+  "fields": [
+    {
+      "fieldId": 1,
+      "assetId": 1,
+      "fieldName": "customer_id",
+      "fieldCode": "客户ID",
+      "fieldType": "BIGINT",
+      "isPrimaryKey": 1,
+      "isRequired": 1,
+      "classificationId": 2,
+      "gradingId": 2,
+      "status": "ACTIVE"
+    },
+    {
+      "fieldId": 2,
+      "assetId": 1,
+      "fieldName": "customer_name",
+      "fieldCode": "客户姓名",
+      "fieldType": "VARCHAR",
+      "isPrimaryKey": 0,
+      "isRequired": 1,
+      "classificationId": 2,
+      "gradingId": 3,
+      "status": "ACTIVE"
+    },
+    {
+      "fieldId": 3,
+      "assetId": 1,
+      "fieldName": "customer_phone",
+      "fieldCode": "联系电话",
+      "fieldType": "VARCHAR",
+      "isPrimaryKey": 0,
+      "isRequired": 0,
+      "classificationId": 2,
+      "gradingId": 3,
+      "status": "ACTIVE"
+    }
+  ]
+}

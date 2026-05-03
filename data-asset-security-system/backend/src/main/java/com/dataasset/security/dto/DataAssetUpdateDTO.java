@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,8 +24,43 @@ public class DataAssetUpdateDTO {
     @Size(max = 128, message = "资产名称长度不能超过128")
     private String assetName;
 
+    @Schema(description = "资产编码")
+    @Size(max = 64, message = "资产编码长度不能超过64")
+    private String assetCode;
+
+    @Schema(description = "资产类型")
+    @Size(max = 32, message = "资产类型长度不能超过32")
+    private String assetType;
+
+    @Schema(description = "所属系统")
+    @Size(max = 64, message = "所属系统长度不能超过64")
+    private String systemName;
+
+    @Schema(description = "数据库类型")
+    @Size(max = 32, message = "数据库类型长度不能超过32")
+    private String databaseType;
+
+    @Schema(description = "数据库地址")
+    @Size(max = 128, message = "数据库地址长度不能超过128")
+    private String databaseHost;
+
+    @Schema(description = "数据库端口")
+    private Integer databasePort;
+
+    @Schema(description = "数据库名称")
+    @Size(max = 64, message = "数据库名称长度不能超过64")
+    private String databaseName;
+
+    @Schema(description = "表名")
+    @Size(max = 64, message = "表名长度不能超过64")
+    private String tableName;
+
+    @Schema(description = "关联数据源ID")
+    private Long dataSourceId;
+
     @Schema(description = "资产描述")
     @Size(max = 500, message = "资产描述长度不能超过500")
+    @JsonAlias("description")
     private String assetDescription;
 
     @Schema(description = "责任部门ID")

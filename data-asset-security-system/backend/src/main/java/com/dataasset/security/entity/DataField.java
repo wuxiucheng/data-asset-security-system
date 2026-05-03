@@ -83,6 +83,16 @@ public class DataField extends BaseEntity implements Serializable {
     private String sensitiveDataType;
 
     /**
+     * 风险等级
+     */
+    private String riskLevel;
+
+    /**
+     * 是否必填
+     */
+    private Boolean isRequired;
+
+    /**
      * 默认值
      */
     private String defaultValue;
@@ -96,4 +106,9 @@ public class DataField extends BaseEntity implements Serializable {
      * 状态：ACTIVE, INACTIVE
      */
     private String status;
+
+    /**
+     * 数据条数，记录该字段在对应数据表中非空值的记录条数
+     */
+    private Long rowCount;
 }

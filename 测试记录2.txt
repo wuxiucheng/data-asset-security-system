@@ -1,0 +1,42 @@
+测试记录2 - 修复状态
+
+1. Session /my-sessions 405错误 [✅已修复]
+   - 添加了/my-sessions和/user/{userId}端点到SessionController
+
+2. owner/create 400错误 [✅已修复]
+   - 放宽了employeeNo的验证规则(移除严格的正则)
+   - 放宽了contactPhone的验证规则(移除手机号格式验证)
+   - 修复了@JsonAlias注解格式
+
+3. 分类标准/分级标准新增插入问题 [✅已修复]
+   - 修复了前端API路径: /classification/page → /classificationStandard/page
+   - 修复了前端API路径: /grading/page → /gradingStandard/page
+
+4. 数据分级所属标准下拉框显示ID而非名称 [✅已修复]
+   - 修复了gradingStandardApi.getList的API路径
+   - 下拉框已正确使用label=standardName, value=standardId
+
+5. 资产导入/导出/模板下载API问题 [✅已修复]
+   - 添加了/asset/import-template端点(GET)
+   - 添加了/asset/import端点(POST, multipart)
+   - 添加了/asset/export端点(GET)
+
+6. 字段管理/asset/fields/1 500错误 [✅已修复]
+   - 修复了前端API路径: /asset/fields/ → /asset/field/
+   - 修复了前端API路径: /asset/fields/import-template → /asset/field/import-template
+   - 修复了前端API路径: /asset/fields/import → /asset/field/import
+
+7. 审计日志模块/对象名称/操作描述为空 [✅已修复]
+   - 修改了AuditLogAspect,添加module字段设置(使用objectType.getDescription())
+   - 添加了operationDescription字段设置
+   - 添加了objectName字段提取(通过反射从参数中获取name/roleName/standardName/assetName)
+
+8. 统计报告生成失败 [✅已修复]
+   - 修改了ReportController.generateClassificationStatsReport
+   - 添加了classificationDistribution和gradingDistribution字段
+   - 添加了departmentDistribution字段
+   - 从数据库查询实际资产数据进行统计
+
+=== 修复汇总 ===
+所有8个问题均已修复,后端已重新编译并启动成功。
+API测试全部通过。

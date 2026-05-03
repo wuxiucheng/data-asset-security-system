@@ -42,6 +42,15 @@ public class DataAssetQueryDTO {
     @Schema(description = "状态：DRAFT, ACTIVE, INACTIVE, ARCHIVED")
     private String status;
 
+    @Schema(description = "数据库类型")
+    private String databaseType;
+
+    @Schema(description = "数据库地址")
+    private String databaseHost;
+
+    @Schema(description = "数据库名称")
+    private String databaseName;
+
     @Schema(description = "是否包含敏感数据")
     private Boolean containsSensitiveData;
 
@@ -56,4 +65,8 @@ public class DataAssetQueryDTO {
 
     @Schema(description = "每页大小")
     private Long size = 10L;
+    // 兼容前端page参数
+    public void setPage(Long page) {
+        this.current = page;
+    }
 }

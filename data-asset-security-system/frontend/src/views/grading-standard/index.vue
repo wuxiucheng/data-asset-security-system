@@ -9,8 +9,8 @@
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 180px">
             <el-option label="草稿" value="DRAFT" />
-            <el-option label="已发布" value="ACTIVE" />
-            <el-option label="已停用" value="INACTIVE" />
+            <el-option label="已发布" value="PUBLISHED" />
+            <el-option label="已归档" value="ARCHIVED" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -34,7 +34,7 @@
     <!-- 分级标准列表 -->
     <el-card class="table-card">
       <el-table :data="tableData" v-loading="loading" border stripe>
-        <el-table-column prop="standardId" label="ID" width="80" />
+        <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="standardCode" label="标准编码" width="150" />
         <el-table-column prop="standardName" label="标准名称" width="200" />
         <el-table-column prop="version" label="版本" width="100" />
@@ -43,8 +43,9 @@
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
             <el-tag v-if="row.status === 'DRAFT'" type="info">草稿</el-tag>
-            <el-tag v-else-if="row.status === 'ACTIVE'" type="success">已发布</el-tag>
-            <el-tag v-else type="warning">已停用</el-tag>
+            <el-tag v-else-if="row.status === 'PUBLISHED'" type="success">已发布</el-tag>
+            <el-tag v-else-if="row.status === 'ARCHIVED'" type="warning">已归档</el-tag>
+            <el-tag v-else type="info">{{ row.status }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="250" fixed="right">
@@ -115,7 +116,7 @@
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="formData.status">
             <el-radio value="DRAFT">草稿</el-radio>
-            <el-radio value="ACTIVE">已发布</el-radio>
+            <el-radio value="PUBLISHED">已发布</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>

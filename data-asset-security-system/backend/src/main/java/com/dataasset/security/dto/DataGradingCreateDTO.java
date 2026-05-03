@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,6 +33,7 @@ public class DataGradingCreateDTO {
 
     @Schema(description = "分级描述")
     @Size(max = 500, message = "分级描述长度不能超过500")
+    @JsonAlias("description")
     private String gradingDescription;
 
     @Schema(description = "等级值", required = true)
@@ -44,7 +46,16 @@ public class DataGradingCreateDTO {
 
     @Schema(description = "安全要求")
     @Size(max = 1000, message = "安全要求长度不能超过1000")
+    @JsonAlias("securityMeasures")
     private String securityRequirements;
+
+    @Schema(description = "访问控制")
+    @Size(max = 1000, message = "访问控制长度不能超过1000")
+    private String accessControl;
+
+    @Schema(description = "保留期限")
+    @Size(max = 100, message = "保留期限长度不能超过100")
+    private String retentionPeriod;
 
     @Schema(description = "排序")
     private Integer sortOrder;

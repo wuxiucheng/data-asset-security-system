@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,6 +33,7 @@ public class DataClassificationCreateDTO {
 
     @Schema(description = "分类描述")
     @Size(max = 500, message = "分类描述长度不能超过500")
+    @JsonAlias("description")
     private String classificationDescription;
 
     @Schema(description = "父分类ID")

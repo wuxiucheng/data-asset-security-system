@@ -107,7 +107,7 @@
               <el-icon><Download /></el-icon> 导出Excel
             </el-button>
             <el-button type="warning" @click="handleExportPDF" :disabled="!previewData.length">
-              <el-icon><Download /></el-icon> 导出文本报告
+              <el-icon><Download /></el-icon> 导出PDF
             </el-button>
           </div>
         </div>
@@ -160,7 +160,7 @@
             <el-tag v-else type="warning">归档</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="120" />
+        <el-table-column prop="createdTime" label="创建时间" width="120" />
       </el-table>
 
       <!-- 分页 -->
@@ -318,18 +318,19 @@ const handleExportPDF = async () => {
 
     const res = await reportApi.exportAssetListReport(params)
 
-    // 创建下载链接
-    const blob = new Blob([res.data], { type: 'text/plain;charset=utf-8' })
+    // 创建下载链接（后端返回PDF格式）
+    const blob = new Blob([res.data], { type: 'application/pdf' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${reportForm.reportName || '数据资产清单报告'}_${new Date().getTime()}.txt`
+    link.download = `${reportForm.reportName || '数据资产清单报告'}_${new Date().getTime()}.pdf`
     link.click()
+    window.URL.revokeObjectURL(url)
 
-    ElMessage.success('报告导出成功')
+    ElMessage.success('PDF导出成功')
   } catch (error) {
-    ElMessage.error('报告导出失败')
-    console.error('报告导出失败:', error)
+    ElMessage.error('PDF导出失败')
+    console.error('PDF导出失败:', error)
   }
 }
 

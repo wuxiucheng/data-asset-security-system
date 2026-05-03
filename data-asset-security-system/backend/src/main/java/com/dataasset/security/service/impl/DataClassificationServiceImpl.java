@@ -310,7 +310,7 @@ public class DataClassificationServiceImpl extends ServiceImpl<DataClassificatio
         if (classification.getCreatorId() != null) {
             SysUser creator = userMapper.selectById(classification.getCreatorId());
             if (creator != null) {
-                vo.setCreatorName(creator.getUserName());
+                vo.setCreatorName(creator.getUsername());
             }
         }
 
@@ -318,7 +318,7 @@ public class DataClassificationServiceImpl extends ServiceImpl<DataClassificatio
         if (classification.getUpdaterId() != null) {
             SysUser updater = userMapper.selectById(classification.getUpdaterId());
             if (updater != null) {
-                vo.setUpdaterName(updater.getUserName());
+                vo.setUpdaterName(updater.getUsername());
             }
         }
 

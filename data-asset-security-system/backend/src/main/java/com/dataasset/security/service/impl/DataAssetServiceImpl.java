@@ -9,12 +9,15 @@ import com.dataasset.security.dto.DataAssetCreateDTO;
 import com.dataasset.security.dto.DataAssetQueryDTO;
 import com.dataasset.security.dto.DataAssetUpdateDTO;
 import com.dataasset.security.entity.DataAsset;
+import com.dataasset.security.entity.DataSourceConfig;
 import com.dataasset.security.entity.Department;
 import com.dataasset.security.entity.Owner;
 import com.dataasset.security.mapper.DataAssetMapper;
+import com.dataasset.security.mapper.DataSourceConfigMapper;
 import com.dataasset.security.mapper.DepartmentMapper;
 import com.dataasset.security.mapper.OwnerMapper;
 import com.dataasset.security.service.DataAssetService;
+import com.dataasset.security.service.DynamicDatabaseQueryService;
 import com.dataasset.security.vo.DataAssetVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,8 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +45,14 @@ public class DataAssetServiceImpl extends ServiceImpl<DataAssetMapper, DataAsset
 
     private final DepartmentMapper departmentMapper;
     private final OwnerMapper ownerMapper;
+    private final DataSourceConfigMapper dataSourceConfigMapper;
+    private final DynamicDatabaseQueryService dynamicDatabaseQueryService;
+
+    // 并发控制：正在刷新中的资产ID集合
+    private final ConcurrentHashMap<Long, Boolean> refreshingAssets = new ConcurrentHashMap<>();
+
+    // 批量刷新任务存储
+    private final ConcurrentHashMap<String, Map<String, Object>> batchRefreshTasks = new ConcurrentHashMap<>();
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -139,54 +152,10 @@ public class DataAssetServiceImpl extends ServiceImpl<DataAssetMapper, DataAsset
             }
         }
 
-        // 更新资产信息
-        if (StringUtils.hasText(updateDTO.getAssetName())) {
-            asset.setAssetName(updateDTO.getAssetName());
-        }
-        if (StringUtils.hasText(updateDTO.getAssetDescription())) {
-            asset.setAssetDescription(updateDTO.getAssetDescription());
-        }
-        if (updateDTO.getDepartmentId() != null) {
-            asset.setDepartmentId(updateDTO.getDepartmentId());
-        }
-        if (updateDTO.getOwnerId() != null) {
-            asset.setOwnerId(updateDTO.getOwnerId());
-        }
-        if (updateDTO.getClassificationId() != null) {
-            asset.setClassificationId(updateDTO.getClassificationId());
-        }
-        if (updateDTO.getGradingId() != null) {
-            asset.setGradingId(updateDTO.getGradingId());
-        }
-        if (StringUtils.hasText(updateDTO.getDataVolumeLevel())) {
-            asset.setDataVolumeLevel(updateDTO.getDataVolumeLevel());
-        }
-        if (StringUtils.hasText(updateDTO.getAccessFrequency())) {
-            asset.setAccessFrequency(updateDTO.getAccessFrequency());
-        }
-        if (StringUtils.hasText(updateDTO.getImportanceLevel())) {
-            asset.setImportanceLevel(updateDTO.getImportanceLevel());
-        }
-        if (updateDTO.getContainsSensitiveData() != null) {
-            asset.setContainsSensitiveData(updateDTO.getContainsSensitiveData());
-        }
-        if (StringUtils.hasText(updateDTO.getSensitiveDataType())) {
-            asset.setSensitiveDataType(updateDTO.getSensitiveDataType());
-        }
-        if (StringUtils.hasText(updateDTO.getStatus())) {
-            asset.setStatus(updateDTO.getStatus());
-        }
-        if (StringUtils.hasText(updateDTO.getExpireTime())) {
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                asset.setExpireTime(LocalDateTime.parse(updateDTO.getExpireTime(), formatter));
-            } catch (Exception e) {
-                throw new BusinessException("过期时间格式不正确，应为 yyyy-MM-dd HH:mm:ss");
-            }
-        }
-        if (StringUtils.hasText(updateDTO.getRemarks())) {
-            asset.setRemarks(updateDTO.getRemarks());
-        }
+        // 更新资产信息 - 使用BeanUtils覆盖所有字段
+        org.springframework.beans.BeanUtils.copyProperties(updateDTO, asset);
+        // 确保ID不被覆盖
+        asset.setAssetId(updateDTO.getAssetId());
 
         asset.setUpdatedTime(LocalDateTime.now());
 
@@ -242,6 +211,15 @@ public class DataAssetServiceImpl extends ServiceImpl<DataAssetMapper, DataAsset
         }
         if (StringUtils.hasText(queryDTO.getStatus())) {
             wrapper.eq(DataAsset::getStatus, queryDTO.getStatus());
+        }
+        if (StringUtils.hasText(queryDTO.getDatabaseType())) {
+            wrapper.eq(DataAsset::getDatabaseType, queryDTO.getDatabaseType());
+        }
+        if (StringUtils.hasText(queryDTO.getDatabaseHost())) {
+            wrapper.like(DataAsset::getDatabaseHost, queryDTO.getDatabaseHost());
+        }
+        if (StringUtils.hasText(queryDTO.getDatabaseName())) {
+            wrapper.like(DataAsset::getDatabaseName, queryDTO.getDatabaseName());
         }
         if (queryDTO.getContainsSensitiveData() != null) {
             wrapper.eq(DataAsset::getContainsSensitiveData, queryDTO.getContainsSensitiveData());
@@ -374,6 +352,7 @@ public class DataAssetServiceImpl extends ServiceImpl<DataAssetMapper, DataAsset
         vo.setDatabasePort(asset.getDatabasePort());
         vo.setDatabaseName(asset.getDatabaseName());
         vo.setTableName(asset.getTableName());
+        vo.setDataSourceId(asset.getDataSourceId());
         vo.setAssetDescription(asset.getAssetDescription());
         vo.setDepartmentId(asset.getDepartmentId());
         vo.setOwnerId(asset.getOwnerId());
@@ -389,6 +368,7 @@ public class DataAssetServiceImpl extends ServiceImpl<DataAssetMapper, DataAsset
         vo.setLastScanTime(asset.getLastScanTime());
         vo.setLastScanResult(asset.getLastScanResult());
         vo.setExpireTime(asset.getExpireTime());
+        vo.setRowCount(asset.getRowCount());
         vo.setRemarks(asset.getRemarks());
         vo.setCreatorId(asset.getCreatorId());
         vo.setUpdaterId(asset.getUpdaterId());
@@ -411,6 +391,173 @@ public class DataAssetServiceImpl extends ServiceImpl<DataAssetMapper, DataAsset
             }
         }
 
+        // 查询数据源名称
+        if (asset.getDataSourceId() != null) {
+            DataSourceConfig dsConfig = dataSourceConfigMapper.selectById(asset.getDataSourceId());
+            if (dsConfig != null) {
+                vo.setDataSourceName(dsConfig.getDataSourceName());
+            }
+        }
+
         return vo;
+    }
+
+    @Override
+    public Map<String, Object> refreshAssetRowCount(Long assetId) {
+        // 并发控制
+        if (refreshingAssets.putIfAbsent(assetId, true) != null) {
+            throw new BusinessException("该资产正在刷新中，请稍后");
+        }
+
+        try {
+            DataAsset asset = this.getById(assetId);
+            if (asset == null) {
+                throw new ResourceNotFoundException("资产不存在");
+            }
+
+            // 校验：DATABASE 或 TABLE 类型才支持刷新数据条数
+            if (asset.getAssetType() == null
+                    || (!asset.getAssetType().equals("DATABASE") && !asset.getAssetType().equals("TABLE"))) {
+                throw new BusinessException("仅数据库/表类型资产支持查询数据条数");
+            }
+
+            // 必须有表名
+            if (asset.getTableName() == null || asset.getTableName().isEmpty()) {
+                throw new BusinessException("资产缺少表名，无法查询数据条数");
+            }
+
+            // 获取数据库连接信息：优先从关联的数据源配置获取（含凭证），否则从资产自身字段获取
+            String dbType = asset.getDatabaseType();
+            String host = asset.getDatabaseHost();
+            int port = asset.getDatabasePort() != null ? asset.getDatabasePort() : 0;
+            String dbName = asset.getDatabaseName();
+            String username = null;
+            String password = null;
+
+            if (asset.getDataSourceId() != null) {
+                DataSourceConfig dsConfig = dataSourceConfigMapper.selectById(asset.getDataSourceId());
+                if (dsConfig != null && "ACTIVE".equals(dsConfig.getStatus())) {
+                    dbType = dsConfig.getDatabaseType();
+                    host = dsConfig.getHost();
+                    port = dsConfig.getPort();
+                    dbName = dsConfig.getDatabaseName();
+                    username = dsConfig.getUsername();
+                    password = dsConfig.getPassword();
+                }
+            }
+
+            if (!StringUtils.hasText(host) || port == 0
+                    || !StringUtils.hasText(dbName) || !StringUtils.hasText(asset.getTableName())) {
+                throw new BusinessException("资产缺少数据库连接信息，无法查询数据条数。请配置数据源或补充连接信息。");
+            }
+
+            // 执行COUNT查询
+            long rowCount = dynamicDatabaseQueryService.queryTableRowCount(
+                    dbType, host, port, dbName, username, password, asset.getTableName()
+            );
+
+            // 更新rowCount字段
+            asset.setRowCount(rowCount);
+            asset.setUpdatedTime(LocalDateTime.now());
+            this.updateById(asset);
+
+            log.info("资产数据条数刷新成功：{}，rowCount={}", asset.getAssetName(), rowCount);
+
+            return Map.of("assetId", assetId, "rowCount", rowCount);
+        } finally {
+            refreshingAssets.remove(assetId);
+        }
+    }
+
+    @Override
+    public String submitBatchRefreshTask(List<Long> assetIds, String refreshScope) {
+        String taskId = "task_" + System.currentTimeMillis();
+
+        Map<String, Object> task = new ConcurrentHashMap<>();
+        task.put("taskId", taskId);
+        task.put("status", "RUNNING");
+        task.put("totalCount", assetIds.size());
+        task.put("completedCount", 0);
+        task.put("currentAssetName", "");
+        task.put("results", new java.util.ArrayList<Map<String, Object>>());
+        batchRefreshTasks.put(taskId, task);
+
+        // 异步执行批量刷新
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            List<Map<String, Object>> results = (List<Map<String, Object>>) task.get("results");
+            for (int i = 0; i < assetIds.size(); i++) {
+                Long id = assetIds.get(i);
+                try {
+                    DataAsset asset = this.getById(id);
+                    if (asset != null) {
+                        task.put("currentAssetName", asset.getAssetName());
+
+                        // 获取连接信息：优先从数据源配置获取
+                        String dbType = asset.getDatabaseType();
+                        String host = asset.getDatabaseHost();
+                        int port = asset.getDatabasePort() != null ? asset.getDatabasePort() : 0;
+                        String dbName = asset.getDatabaseName();
+                        String username = null;
+                        String password = null;
+
+                        if (asset.getDataSourceId() != null) {
+                            DataSourceConfig dsConfig = dataSourceConfigMapper.selectById(asset.getDataSourceId());
+                            if (dsConfig != null && "ACTIVE".equals(dsConfig.getStatus())) {
+                                dbType = dsConfig.getDatabaseType();
+                                host = dsConfig.getHost();
+                                port = dsConfig.getPort();
+                                dbName = dsConfig.getDatabaseName();
+                                username = dsConfig.getUsername();
+                                password = dsConfig.getPassword();
+                            }
+                        }
+
+                        long rowCount = dynamicDatabaseQueryService.queryTableRowCount(
+                                dbType, host, port, dbName, username, password, asset.getTableName()
+                        );
+                        asset.setRowCount(rowCount);
+                        asset.setUpdatedTime(LocalDateTime.now());
+                        this.updateById(asset);
+
+                        Map<String, Object> result = new java.util.HashMap<>();
+                        result.put("assetId", id);
+                        result.put("assetName", asset.getAssetName());
+                        result.put("status", "SUCCESS");
+                        result.put("rowCount", rowCount);
+                        result.put("errorMessage", null);
+                        results.add(result);
+                    } else {
+                        Map<String, Object> result = new java.util.HashMap<>();
+                        result.put("assetId", id);
+                        result.put("assetName", "");
+                        result.put("status", "FAILED");
+                        result.put("rowCount", null);
+                        result.put("errorMessage", "资产不存在");
+                        results.add(result);
+                    }
+                } catch (Exception e) {
+                    Map<String, Object> result = new java.util.HashMap<>();
+                    result.put("assetId", id);
+                    result.put("assetName", "");
+                    result.put("status", "FAILED");
+                    result.put("rowCount", null);
+                    result.put("errorMessage", e.getMessage());
+                    results.add(result);
+                }
+                task.put("completedCount", i + 1);
+            }
+            task.put("status", "COMPLETED");
+        });
+
+        return taskId;
+    }
+
+    @Override
+    public Map<String, Object> getBatchRefreshProgress(String taskId) {
+        Map<String, Object> task = batchRefreshTasks.get(taskId);
+        if (task == null) {
+            throw new ResourceNotFoundException("任务不存在");
+        }
+        return task;
     }
 }

@@ -4,10 +4,17 @@ import { http } from '@/utils/request'
 export interface LoginRequest {
   username: string
   password: string
+  captcha?: string
+  captchaKey?: string
+  mfaCode?: string
+  rememberMe?: boolean
 }
 
 export interface LoginResponse {
-  token: string
+  accessToken: string
+  refreshToken: string
+  tokenType: string
+  expiresIn: number
   userInfo: UserInfo
 }
 
@@ -19,6 +26,8 @@ export interface UserInfo {
   phone: string
   avatar?: string
   roles: string[]
+  permissions: string[]
+  mfaEnabled: boolean
 }
 
 // 认证相关API
@@ -33,19 +42,225 @@ export const authApi = {
     return http.post('/auth/logout')
   },
 
-  // 获取用户信息
-  getUserInfo() {
-    return http.get<UserInfo>('/auth/userInfo')
+  // 获取当前用户信息
+  getCurrentUser() {
+    return http.get<UserInfo>('/auth/current-user')
   },
 
-  // 更新个人信息
-  updateProfile(data: any) {
-    return http.put('/auth/updateProfile', data)
+  // 刷新Token
+  refreshToken(refreshToken: string) {
+    return http.post<LoginResponse>('/auth/refresh-token', { refreshToken })
   },
 
-  // 修改密码
-  changePassword(data: any) {
-    return http.post('/auth/changePassword', data)
+  // 验证Token
+  validateToken(token: string) {
+    return http.post<{ valid: boolean }>('/auth/validate-token', null, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+  },
+
+  // 撤销Token
+  revokeToken(token: string) {
+    return http.post('/auth/revoke-token', null, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+  },
+}
+
+// 会话管理API
+export interface SessionInfo {
+  sessionId: number
+  userId: number
+  username: string
+  loginTime: string
+  lastAccessTime: string
+  expireTime: string
+  loginIp: string
+  deviceInfo: string
+  browserInfo: string
+  status: string
+}
+
+export const sessionApi = {
+  // 获取当前会话信息
+  getCurrentSession() {
+    return http.get<SessionInfo>('/session/current')
+  },
+
+  // 获取用户活跃会话列表
+  getUserActiveSessions(userId: number) {
+    return http.get<SessionInfo[]>(`/session/user/${userId}`)
+  },
+
+  // 获取当前用户的活跃会话列表
+  getMyActiveSessions() {
+    return http.get<SessionInfo[]>('/session/my-sessions')
+  },
+
+  // 强制下线指定会话
+  forceLogoutSession(sessionId: number) {
+    return http.post(`/session/${sessionId}/force-logout`)
+  },
+
+  // 强制下线当前用户的所有会话
+  forceLogoutAllMySessions() {
+    return http.post('/session/force-logout-all')
+  },
+
+  // 清理过期会话
+  cleanExpiredSessions() {
+    return http.post('/session/clean-expired')
+  },
+}
+
+// MFA相关API
+export interface MfaSetupInfo {
+  userId: number
+  username: string
+  mfaType: string
+  secret: string
+  qrCodeUrl: string
+  qrCodeImage: string
+  enabled: boolean
+  backupCodes?: string[]
+}
+
+export interface MfaEnableRequest {
+  mfaType: string
+  secret: string
+  verificationCode: string
+}
+
+export interface MfaVerifyRequest {
+  userId?: number
+  code: string
+  useBackupCode?: boolean
+}
+
+export const mfaApi = {
+  // 生成MFA设置信息
+  generateMfaSetup() {
+    return http.get<MfaSetupInfo>('/mfa/setup')
+  },
+
+  // 启用MFA
+  enableMfa(data: MfaEnableRequest) {
+    return http.post('/mfa/enable', data)
+  },
+
+  // 验证MFA验证码
+  verifyMfaCode(data: MfaVerifyRequest) {
+    return http.post<{ valid: boolean }>('/mfa/verify', data)
+  },
+
+  // 禁用MFA
+  disableMfa(password: string) {
+    return http.post('/mfa/disable', null, {
+      params: { password }
+    })
+  },
+
+  // 检查MFA状态
+  checkMfaStatus() {
+    return http.get<{ enabled: boolean }>('/mfa/status')
+  },
+
+  // 获取MFA配置
+  getMfaConfig() {
+    return http.get<MfaSetupInfo>('/mfa/config')
+  },
+
+  // 生成备用码
+  generateBackupCodes() {
+    return http.post<string[]>('/mfa/backup-codes')
+  },
+}
+
+// 审计日志API
+export interface AuditLogQuery {
+  operationType?: string
+  moduleName?: string
+  objectType?: string
+  operatorId?: number
+  operatorUsername?: string
+  operationResult?: string
+  startTime?: string
+  endTime?: string
+  keyword?: string
+  pageNum?: number
+  pageSize?: number
+}
+
+export interface AuditLogInfo {
+  logId: number
+  operationType: string
+  module: string
+  objectType: string
+  objectId?: number
+  objectName?: string
+  operationDescription?: string
+  operationContent?: string
+  operationResult: string
+  errorMessage?: string
+  operatorId?: number
+  operatorName?: string
+  operatorUsername?: string
+  operationTime: string
+  operationIp?: string
+  operationLocation?: string
+  userAgent?: string
+  requestUrl?: string
+  requestMethod?: string
+  executionTime?: number
+}
+
+export interface AuditLogStatistics {
+  totalOperations: number
+  successCount: number
+  failureCount: number
+  successRate: number
+  operationTypeStats: Record<string, number>
+  moduleStats: Record<string, number>
+  userStats: Record<string, number>
+  dateStats: Record<string, number>
+  startTime?: string
+  endTime?: string
+}
+
+export const auditLogApi = {
+  // 分页查询审计日志
+  queryAuditLogs(data: AuditLogQuery) {
+    return http.post<{
+      records: AuditLogInfo[]
+      total: number
+      size: number
+      current: number
+      pages: number
+    }>('/audit-logs/query', data)
+  },
+
+  // 统计审计日志
+  statisticsAuditLogs(data: AuditLogQuery) {
+    return http.post<AuditLogStatistics>('/audit-logs/statistics', data)
+  },
+
+  // 导出审计日志
+  exportAuditLogs(data: AuditLogQuery) {
+    return http.post<{ filePath: string }>('/audit-logs/export', data)
+  },
+
+  // 归档审计日志
+  archiveAuditLogs(beforeTime: string) {
+    return http.post<{ count: number }>('/audit-logs/archive', null, {
+      params: { beforeTime }
+    })
+  },
+
+  // 清理已归档的审计日志
+  cleanArchivedAuditLogs(beforeTime: string) {
+    return http.post<{ count: number }>('/audit-logs/clean', null, {
+      params: { beforeTime }
+    })
   },
 }
 
@@ -64,7 +279,7 @@ export interface User {
 export const userApi = {
   // 获取用户列表
   getList(params: any) {
-    return http.get<{ list: User[]; total: number }>('/user/list', { params })
+    return http.post('/user/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建用户
@@ -84,7 +299,7 @@ export const userApi = {
 
   // 修改密码
   changePassword(data: any) {
-    return http.post('/user/changePassword', data)
+    return http.post('/auth/changePassword', data)
   },
 }
 
@@ -102,7 +317,7 @@ export interface Role {
 export const roleApi = {
   // 获取角色列表
   getList(params: any) {
-    return http.get<{ list: Role[]; total: number }>('/role/list', { params })
+    return http.post('/role/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建角色
@@ -153,7 +368,7 @@ export const departmentApi = {
 
   // 获取部门列表
   getList(params: any) {
-    return http.get<{ list: Department[]; total: number }>('/department/list', { params })
+    return http.post('/department/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建部门
@@ -189,7 +404,7 @@ export interface Owner {
 export const ownerApi = {
   // 获取责任人列表
   getList(params: any) {
-    return http.get<{ list: Owner[]; total: number }>('/owner/list', { params })
+    return http.post('/owner/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建责任人
@@ -225,7 +440,7 @@ export interface ClassificationStandard {
 export const classificationStandardApi = {
   // 获取分类标准列表
   getList(params: any) {
-    return http.get<{ list: ClassificationStandard[]; total: number }>('/classificationStandard/list', { params })
+    return http.post('/classificationStandard/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建分类标准
@@ -245,7 +460,7 @@ export const classificationStandardApi = {
 
   // 发布分类标准
   publish(standardId: number) {
-    return http.post(`/classificationStandard/publish/${standardId}`)
+    return http.put(`/classificationStandard/${standardId}/publish`)
   },
 }
 
@@ -271,7 +486,7 @@ export const dataClassificationApi = {
 
   // 获取分类列表
   getList(params: any) {
-    return http.get<{ list: DataClassification[]; total: number }>('/classification/list', { params })
+    return http.post('/classification/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建分类
@@ -302,6 +517,8 @@ export interface DataAsset {
   databasePort: number
   databaseName: string
   tableName: string
+  dataSourceId: number | null
+  dataSourceName: string
   assetDescription: string
   departmentId: number
   ownerId: number
@@ -314,6 +531,7 @@ export interface DataAsset {
   status: string
   containsSensitiveData: boolean
   sensitiveDataType: string
+  rowCount: number | null
   createTime: string
   updateTime: string
 }
@@ -321,7 +539,7 @@ export interface DataAsset {
 export const dataAssetApi = {
   // 获取资产列表
   getList(params: any) {
-    return http.get<{ list: DataAsset[]; total: number }>('/asset/list', { params })
+    return http.post('/asset/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 获取资产详情
@@ -344,16 +562,45 @@ export const dataAssetApi = {
     return http.delete(`/asset/delete/${assetId}`)
   },
 
+  // 批量删除资产
+  batchDelete(ids: number[]) {
+    return http.post('/asset/batch-delete', ids)
+  },
+
   // 批量导入
   import(file: File) {
     const formData = new FormData()
     formData.append('file', file)
-    return http.upload('/asset/import', formData)
+    return http.post('/asset/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+
+  // 下载导入模板
+  getImportTemplate() {
+    return http.get('/asset/import-template')
   },
 
   // 导出资产
   export(params: any) {
     return http.get('/asset/export', { params, responseType: 'blob' })
+  },
+
+  // 刷新资产数据条数
+  refreshRowCount(assetId: number) {
+    return http.post(`/asset/refresh-row-count/${assetId}`)
+  },
+
+  // 批量刷新数据条数
+  batchRefreshRowCount(data: { assetIds: number[], refreshScope: string }) {
+    return http.post('/asset/batch-refresh-row-count', data)
+  },
+
+  // 查询批量刷新进度
+  getBatchRefreshProgress(taskId: string) {
+    return http.get(`/asset/batch-refresh-progress/${taskId}`)
   },
 }
 
@@ -374,12 +621,17 @@ export interface Permission {
 export const permissionApi = {
   // 获取权限列表
   getList(params: any) {
-    return http.get<{ list: Permission[]; total: number }>('/permission/list', { params })
+    return http.get<Permission[]>('/permission/all')
   },
 
   // 获取权限树
   getTree() {
-    return http.get<Permission[]>('/permission/tree')
+    return http.post<Permission[]>('/permission/tree', {})
+  },
+
+  // 更新权限
+  update(data: any) {
+    return http.put('/permission/update', data)
   },
 }
 
@@ -400,7 +652,7 @@ export interface GradingStandard {
 export const gradingStandardApi = {
   // 获取分级标准列表
   getList(params: any) {
-    return http.get<{ list: GradingStandard[]; total: number }>('/gradingStandard/list', { params })
+    return http.post('/gradingStandard/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建分级标准
@@ -420,7 +672,7 @@ export const gradingStandardApi = {
 
   // 发布分级标准
   publish(standardId: number) {
-    return http.post(`/gradingStandard/publish/${standardId}`)
+    return http.put(`/gradingStandard/${standardId}/publish`)
   },
 }
 
@@ -442,7 +694,7 @@ export interface DataGrading {
 export const dataGradingApi = {
   // 获取分级列表
   getList(params: any) {
-    return http.get<{ list: DataGrading[]; total: number }>('/grading/list', { params })
+    return http.post('/grading/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
   },
 
   // 创建分级
@@ -479,13 +731,14 @@ export interface AssetField {
   sensitiveType: string
   riskLevel: string
   status: string
+  rowCount: number | null
   createTime: string
 }
 
 export const assetFieldApi = {
   // 获取资产字段列表
   getFieldsByAssetId(assetId: number) {
-    return http.get<AssetField[]>(`/asset/fields/${assetId}`)
+    return http.get<AssetField[]>(`/asset/field/${assetId}`)
   },
 
   // 创建字段
@@ -506,6 +759,27 @@ export const assetFieldApi = {
   // 批量更新字段
   batchUpdate(data: any) {
     return http.post('/asset/field/batchUpdate', data)
+  },
+
+  // 获取字段导入模板
+  getImportTemplate() {
+    return http.get('/asset/field/import-template')
+  },
+
+  // 批量导入字段
+  import(file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return http.post('/asset/field/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+
+  // 刷新字段数据条数
+  refreshRowCount(fieldId: number) {
+    return http.post(`/asset/field/refresh-row-count/${fieldId}`)
   },
 }
 
@@ -567,5 +841,121 @@ export const reportApi = {
   // 删除报告
   deleteReport(reportId: number) {
     return http.delete(`/report/${reportId}`)
+  },
+}
+
+// 资产发现
+export interface DatabaseConnection {
+  databaseType: string
+  host: string
+  port: number
+  databaseName: string
+  username: string
+  password: string
+}
+
+export interface DiscoveredTable {
+  tableName: string
+  tableComment: string
+  tableType: string
+  rowCount: number
+  fields?: DiscoveredField[]
+}
+
+export interface DiscoveredField {
+  fieldName: string
+  fieldType: string
+  fieldLength: number
+  nullable: boolean
+  isPrimaryKey: boolean
+  fieldComment: string
+  defaultValue: string
+}
+
+export const assetDiscoveryApi = {
+  // 测试数据库连接
+  testConnection(data: DatabaseConnection) {
+    return http.post<boolean>('/asset-discovery/test-connection', data)
+  },
+
+  // 扫描数据库表
+  scanTables(data: DatabaseConnection) {
+    return http.post<DiscoveredTable[]>('/asset-discovery/scan-tables', data)
+  },
+
+  // 扫描表字段
+  scanFields(data: DatabaseConnection, tableName: string) {
+    return http.post<DiscoveredTable>(`/asset-discovery/scan-fields?tableName=${tableName}`, data)
+  },
+
+  // 导入发现的资产
+  importAssets(data: any) {
+    return http.post('/asset-discovery/import', data)
+  },
+
+  // 检测导入重复
+  checkDuplicates(data: any) {
+    return http.post('/asset-discovery/check-duplicates', data)
+  },
+}
+
+// ==================== 数据源配置 ====================
+
+export interface DataSourceConfig {
+  dataSourceId: number
+  dataSourceName: string
+  databaseType: string
+  host: string
+  port: number
+  databaseName: string
+  username: string
+  connectionParams?: string
+  status: string
+  lastTestTime?: string
+  lastTestResult?: string
+  remarks?: string
+  createdTime?: string
+  updatedTime?: string
+}
+
+export const dataSourceConfigApi = {
+  // 分页查询
+  getList(params: any) {
+    return http.post('/datasource/page', { ...params, current: params.pageNum || params.page || 1, size: params.pageSize || params.size || 10 })
+  },
+
+  // 查询所有活跃数据源（下拉选择用）
+  listActive() {
+    return http.get('/datasource/list')
+  },
+
+  // 获取详情
+  getDetail(id: number) {
+    return http.get(`/datasource/${id}`)
+  },
+
+  // 创建
+  create(data: any) {
+    return http.post('/datasource', data)
+  },
+
+  // 更新
+  update(id: number, data: any) {
+    return http.put(`/datasource/${id}`, data)
+  },
+
+  // 删除
+  delete(id: number) {
+    return http.delete(`/datasource/${id}`)
+  },
+
+  // 测试已保存数据源的连接
+  testConnection(id: number) {
+    return http.post(`/datasource/test-connection/${id}`)
+  },
+
+  // 测试连接（不保存）
+  testConnectionWithData(data: any) {
+    return http.post('/datasource/test-connection', data)
   },
 }

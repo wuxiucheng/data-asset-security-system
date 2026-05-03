@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -39,13 +40,18 @@ public class DataFieldCreateDTO {
     private Integer fieldLength;
 
     @Schema(description = "是否为空")
+    @JsonAlias("isNullable")
     private Boolean nullable;
 
     @Schema(description = "是否为主键")
     private Boolean isPrimaryKey;
 
+    @Schema(description = "是否必填")
+    private Boolean isRequired;
+
     @Schema(description = "字段描述")
     @Size(max = 500, message = "字段描述长度不能超过500")
+    @JsonAlias("description")
     private String fieldDescription;
 
     @Schema(description = "分类ID")
@@ -59,7 +65,12 @@ public class DataFieldCreateDTO {
 
     @Schema(description = "敏感数据类型")
     @Size(max = 128, message = "敏感数据类型长度不能超过128")
+    @JsonAlias("sensitiveType")
     private String sensitiveDataType;
+
+    @Schema(description = "风险等级")
+    @Size(max = 32, message = "风险等级长度不能超过32")
+    private String riskLevel;
 
     @Schema(description = "默认值")
     @Size(max = 256, message = "默认值长度不能超过256")

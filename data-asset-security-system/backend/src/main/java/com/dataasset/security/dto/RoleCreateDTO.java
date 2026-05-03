@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +23,6 @@ public class RoleCreateDTO {
     @Schema(description = "角色编码", required = true, example = "DATA_ADMIN")
     @NotBlank(message = "角色编码不能为空")
     @Size(max = 64, message = "角色编码长度不能超过64")
-    @Pattern(regexp = "^[A-Z_]+$", message = "角色编码只能包含大写字母和下划线")
     private String roleCode;
 
     @Schema(description = "角色名称", required = true, example = "数据资产管理员")
@@ -32,11 +32,11 @@ public class RoleCreateDTO {
 
     @Schema(description = "角色描述", example = "负责分类分级标准制定和维护")
     @Size(max = 500, message = "角色描述长度不能超过500")
+    @JsonAlias("description")
     private String roleDescription;
 
-    @Schema(description = "角色类型：SYSTEM_ADMIN, DATA_ADMIN, APPROVER, OWNER, USER", required = true)
-    @NotBlank(message = "角色类型不能为空")
-    @Pattern(regexp = "^(SYSTEM_ADMIN|DATA_ADMIN|APPROVER|OWNER|USER)$", message = "角色类型只能是SYSTEM_ADMIN、DATA_ADMIN、APPROVER、OWNER或USER")
+    @Schema(description = "角色类型：SYSTEM_ADMIN, DATA_ADMIN, APPROVER, OWNER, USER")
+    @Size(max = 64, message = "角色类型长度不能超过64")
     private String roleType;
 
     @Schema(description = "权限ID列表")

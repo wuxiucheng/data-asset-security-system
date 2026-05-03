@@ -1,0 +1,114 @@
+:8080/api/role/create:1 
+ Failed to load resource: the server responded with a status of 400 ()
+request.ts:65 响应错误: AxiosError: Request failed with status code 400
+
+request.ts:78 
+ POST http://localhost:8080/api/department/create 400 (Bad Request)
+request.ts:65 响应错误: AxiosError: Request failed with status code 400
+
+request.ts:78  POST http://localhost:8080/api/owner/create 500 (Internal Server Error)
+dispatchXhrRequest @ axios.js?v=920d4677:1809
+xhr @ axios.js?v=920d4677:1674
+dispatchRequest @ axios.js?v=920d4677:2237
+Promise.then
+_request @ axios.js?v=920d4677:2466
+request @ axios.js?v=920d4677:2351
+httpMethod @ axios.js?v=920d4677:2514
+wrap @ axios.js?v=920d4677:8
+(anonymous) @ request.ts:78
+(anonymous) @ index.ts:412
+(anonymous) @ index.vue:256
+await in (anonymous)
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+emit @ chunk-D4VKVKNE.js?v=920d4677:6606
+(anonymous) @ chunk-D4VKVKNE.js?v=920d4677:10487
+handleClick @ chunk-G5EXX4QM.js?v=920d4677:20025
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+invoker @ chunk-D4VKVKNE.js?v=920d4677:11522
+request.ts:65 响应错误: AxiosError: Request failed with status code 500
+
+“分类标准”菜单“状态”筛选条件不生效
+
+request.ts:78  POST http://localhost:8080/api/classificationStandard/publish/4 500 (Internal Server Error)
+dispatchXhrRequest @ axios.js?v=920d4677:1809
+xhr @ axios.js?v=920d4677:1674
+dispatchRequest @ axios.js?v=920d4677:2237
+Promise.then
+_request @ axios.js?v=920d4677:2466
+request @ axios.js?v=920d4677:2351
+httpMethod @ axios.js?v=920d4677:2514
+wrap @ axios.js?v=920d4677:8
+(anonymous) @ request.ts:78
+(anonymous) @ index.ts:463
+(anonymous) @ index.vue:248
+await in (anonymous)
+(anonymous) @ index.vue:60
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+emit @ chunk-D4VKVKNE.js?v=920d4677:6606
+(anonymous) @ chunk-D4VKVKNE.js?v=920d4677:10487
+handleClick @ chunk-G5EXX4QM.js?v=920d4677:20025
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+invoker @ chunk-D4VKVKNE.js?v=920d4677:11522
+request.ts:65 响应错误: AxiosError: Request failed with status code 500
+request.ts:78  POST http://localhost:8080/api/gradingStandard/publish/7 500 (Internal Server Error)
+dispatchXhrRequest @ axios.js?v=920d4677:1809
+xhr @ axios.js?v=920d4677:1674
+dispatchRequest @ axios.js?v=920d4677:2237
+Promise.then
+_request @ axios.js?v=920d4677:2466
+request @ axios.js?v=920d4677:2351
+httpMethod @ axios.js?v=920d4677:2514
+wrap @ axios.js?v=920d4677:8
+(anonymous) @ request.ts:78
+(anonymous) @ index.ts:652
+(anonymous) @ index.vue:248
+await in (anonymous)
+(anonymous) @ index.vue:60
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+emit @ chunk-D4VKVKNE.js?v=920d4677:6606
+(anonymous) @ chunk-D4VKVKNE.js?v=920d4677:10487
+handleClick @ chunk-G5EXX4QM.js?v=920d4677:20025
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+invoker @ chunk-D4VKVKNE.js?v=920d4677:11522
+request.ts:65 响应错误: AxiosError: Request failed with status code 500
+
+"资产列表"菜单下的数据操作“编辑”在原列没有值的情况下对应的列更新就更新，不在有值的列新增value也不更新。
+“批量导入”下的“下载导入模版“按钮操作无效，同时核对下模版信息
+“批量导出”按钮无效
+“批量导入字段”按钮下的“下载导入模版“按钮操作无效，
+这两个模版导入执行“成功”但是数据没有看到插入。
+request.ts:78  POST http://localhost:8080/api/asset/field/batchUpdate 500 (Internal Server Error)
+dispatchXhrRequest @ axios.js?v=920d4677:1809
+xhr @ axios.js?v=920d4677:1674
+dispatchRequest @ axios.js?v=920d4677:2237
+Promise.then
+_request @ axios.js?v=920d4677:2466
+request @ axios.js?v=920d4677:2351
+httpMethod @ axios.js?v=920d4677:2514
+wrap @ axios.js?v=920d4677:8
+(anonymous) @ request.ts:78
+(anonymous) @ index.ts:737
+(anonymous) @ index.vue:471
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+emit @ chunk-D4VKVKNE.js?v=920d4677:6606
+(anonymous) @ chunk-D4VKVKNE.js?v=920d4677:10487
+handleClick @ chunk-G5EXX4QM.js?v=920d4677:20025
+callWithErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2351
+callWithAsyncErrorHandling @ chunk-D4VKVKNE.js?v=920d4677:2358
+invoker @ chunk-D4VKVKNE.js?v=920d4677:11522
+request.ts:65 响应错误: AxiosError: Request failed with status code 500
+
+
+“生产统计报告”按钮报错
+index.vue:306 统计报告生成失败: TypeError: Cannot read properties of undefined (reading 'categories')
+    at renderCharts (index.vue:394:52)
+    at handleGenerateReport (index.vue:303:5)
+
+还有上次修复遗留的问题:所有页面上的操作按钮不局限于“登录”，“登出”，“导出”，“导入”，“菜单查询”，“编辑”，“新增”,"创建"，“更新”，“审批”，“删除”，“下载”等都需要增加审计日志，

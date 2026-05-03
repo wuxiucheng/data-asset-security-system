@@ -1,6 +1,5 @@
 package com.dataasset.security.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -12,33 +11,89 @@ import java.time.LocalDateTime;
  * @since 2025-06-17
  */
 @Data
-@Schema(description = "审计日志查询条件")
 public class AuditLogQueryDTO {
 
-    @Schema(description = "操作类型")
+    /**
+     * 操作类型：LOGIN, LOGOUT, CREATE, UPDATE, DELETE, QUERY, APPROVE
+     */
     private String operationType;
 
-    @Schema(description = "操作人ID")
-    private Long operatorId;
+    /**
+     * 模块名称：USER, ROLE, PERMISSION, ASSET, CLASSIFICATION, GRADING
+     */
+    private String moduleName;
 
-    @Schema(description = "操作对象类型")
+    /**
+     * 对象类型
+     */
     private String objectType;
 
-    @Schema(description = "操作对象ID")
+    /**
+     * 对象ID
+     */
     private Long objectId;
 
-    @Schema(description = "操作结果")
+    /**
+     * 操作人ID
+     */
+    private Long operatorId;
+
+    /**
+     * 操作人用户名
+     */
+    private String operatorUsername;
+
+    /**
+     * 操作结果：SUCCESS, FAILURE
+     */
     private String operationResult;
 
-    @Schema(description = "开始时间")
+    /**
+     * 开始时间
+     */
     private LocalDateTime startTime;
 
-    @Schema(description = "结束时间")
+    /**
+     * 结束时间
+     */
     private LocalDateTime endTime;
 
-    @Schema(description = "当前页码")
-    private Long current = 1L;
+    /**
+     * 关键词搜索
+     */
+    private String keyword;
 
-    @Schema(description = "每页大小")
-    private Long size = 10L;
+    /**
+     * 页码
+     */
+    private Integer pageNum = 1;
+
+    /**
+     * 每页大小
+     */
+    private Integer pageSize = 20;
+
+    /**
+     * 当前页（别名）
+     */
+    public Integer getCurrent() {
+        return pageNum;
+    }
+
+    /**
+     * 每页大小（别名）
+     */
+    public Integer getSize() {
+        return pageSize;
+    }
+
+    // 兼容前端page参数
+    public void setPage(Integer page) {
+        this.pageNum = page;
+    }
+
+    // 兼容前端size参数
+    public void setSize(Integer size) {
+        this.pageSize = size;
+    }
 }

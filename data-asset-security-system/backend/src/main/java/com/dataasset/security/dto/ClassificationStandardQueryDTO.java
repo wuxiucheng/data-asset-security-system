@@ -35,4 +35,8 @@ public class ClassificationStandardQueryDTO {
 
     @Schema(description = "每页大小")
     private Long size = 10L;
+    // 兼容前端page参数
+    public void setPage(Long page) {
+        this.current = page;
+    }
 }

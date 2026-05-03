@@ -9,6 +9,7 @@ import com.dataasset.security.entity.DataAsset;
 import com.dataasset.security.vo.DataAssetVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 数据资产管理Service接口
@@ -95,4 +96,29 @@ public interface DataAssetService extends IService<DataAsset> {
      * @return 资产列表
      */
     List<DataAssetVO> getDataAssetsByGradingId(Long gradingId);
+
+    /**
+     * 刷新资产数据条数
+     *
+     * @param assetId 资产ID
+     * @return 刷新结果，包含assetId和rowCount
+     */
+    Map<String, Object> refreshAssetRowCount(Long assetId);
+
+    /**
+     * 提交批量刷新任务
+     *
+     * @param assetIds      资产ID列表
+     * @param refreshScope  刷新范围：ASSET_ONLY 或 ASSET_AND_FIELD
+     * @return 任务ID
+     */
+    String submitBatchRefreshTask(List<Long> assetIds, String refreshScope);
+
+    /**
+     * 查询批量刷新任务进度
+     *
+     * @param taskId 任务ID
+     * @return 任务进度信息
+     */
+    Map<String, Object> getBatchRefreshProgress(String taskId);
 }

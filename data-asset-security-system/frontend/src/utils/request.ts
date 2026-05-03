@@ -36,8 +36,12 @@ request.interceptors.response.use(
 
     const res = response.data
 
-    // 如果返回的状态码不是0，则判断为错误
-    if (res.code !== 0) {
+    // 判断请求是否成功
+    // Mock后端返回 code: 0
+    // Spring Boot返回 code: 200
+    const isSuccess = res.code === 0 || res.code === 200
+
+    if (!isSuccess) {
       ElMessage.error(res.message || '请求失败')
 
       // 401: 未授权，跳转到登录页
@@ -48,6 +52,11 @@ request.interceptors.response.use(
       }
 
       return Promise.reject(new Error(res.message || '请求失败'))
+    }
+
+    // 兼容Spring Boot分页响应：records -> list
+    if (res.data && res.data.records) {
+      res.data.list = res.data.records
     }
 
     return res

@@ -1,5 +1,6 @@
 package com.dataasset.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -18,19 +19,17 @@ import lombok.Data;
 @Schema(description = "创建责任人请求")
 public class OwnerCreateDTO {
 
-    @Schema(description = "工号", required = true, example = "EMP001")
-    @NotBlank(message = "工号不能为空")
+    @Schema(description = "工号", example = "EMP001")
     @Size(max = 64, message = "工号长度不能超过64")
-    @Pattern(regexp = "^[A-Z0-9]+$", message = "工号只能包含大写字母和数字")
     private String employeeNo;
 
     @Schema(description = "姓名", required = true, example = "张三")
     @NotBlank(message = "姓名不能为空")
     @Size(max = 64, message = "姓名长度不能超过64")
+    @JsonAlias("ownerName")
     private String name;
 
-    @Schema(description = "所属部门ID", required = true)
-    @NotNull(message = "所属部门ID不能为空")
+    @Schema(description = "所属部门ID")
     private Long departmentId;
 
     @Schema(description = "职务", example = "技术经理")
@@ -38,7 +37,7 @@ public class OwnerCreateDTO {
     private String position;
 
     @Schema(description = "联系电话", example = "13800138000")
-    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
+    @Size(max = 20, message = "联系电话长度不能超过20")
     private String contactPhone;
 
     @Schema(description = "邮箱", example = "zhangsan@example.com")

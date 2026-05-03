@@ -1,420 +1,464 @@
-# 数据资产安全及分类分级管理系统 - 本地部署指南
+# 授权认证功能 - 快速部署指南
 
-## 📋 部署前准备
+## 📋 前置条件
 
-### 1. 环境要求
-- ✅ JDK 17+ (当前: 19.0.2)
-- ✅ Maven 3.6+ (当前: 3.9.9)
-- ✅ MySQL 5.7+ (当前: 5.7.24)
-- ✅ Redis 6.0+ (需要安装)
+### 系统要求
+- **操作系统**: Windows/Linux/MacOS
+- **Java**: JDK 17+
+- **Node.js**: 18+
+- **MySQL**: 8.0+
+- **Redis**: 6.0+
+- **Maven**: 3.6+
 
-### 2. 项目结构
-```
-分级分类/
-├── data-asset-security-system/
-│   ├── backend/              # 后端项目
-│   │   ├── src/
-│   │   │   ├── main/
-│   │   │   │   ├── java/
-│   │   │   │   ├── resources/
-│   │   │   │   │   ├── application.yml
-│   │   │   │   │   └── db/
-│   │   │   │   │       └── init.sql
-│   │   │   │   └── application.properties
-│   │   ├── pom.xml
-│   │   └── target/
-│   └── frontend/             # 前端项目（待开发）
-└── PROJECT_SUMMARY.md        # 项目总结文档
-```
+### 开发工具
+- **IDE**: IntelliJ IDEA / VS Code
+- **浏览器**: Chrome / Firefox / Edge
+- **API测试工具**: Postman / Apifox
 
-## 🗄️ 数据库配置
+## 🚀 快速开始
 
-### 1. 创建数据库
-```bash
-# 连接到MySQL
+### 1. 数据库初始化
+
+#### 1.1 创建数据库
+```sql
+-- 登录MySQL
 mysql -u root -p
 
-# 创建数据库
+-- 创建数据库
 CREATE DATABASE IF NOT EXISTS data_asset_security DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-# 退出MySQL
-EXIT;
+-- 使用数据库
+USE data_asset_security;
 ```
 
-### 2. 执行初始化脚本
+#### 1.2 执行初始化脚本
 ```bash
-# 进入项目目录
-cd "/Users/wuxiucheng/分级分类/data-asset-security-system/backend"
+# 进入后端目录
+cd data-asset-security-system/backend
 
-# 执行初始化脚本（安全模式，不会删除现有数据）
+# 执行基础表结构初始化
 mysql -u root -p data_asset_security < src/main/resources/db/init.sql
+
+# 执行认证相关表初始化
+mysql -u root -p data_asset_security < src/main/resources/db/auth_tables.sql
 ```
 
-### 3. 验证数据库初始化
-```bash
-# 连接到数据库
-mysql -u root -p data_asset_security
-
-# 查看表结构
+#### 1.3 验证数据库
+```sql
+-- 查看已创建的表
 SHOW TABLES;
 
-# 查看初始数据
+-- 验证用户表
 SELECT * FROM sys_user;
-SELECT * FROM sys_role;
-SELECT * FROM department;
 
-# 退出MySQL
-EXIT;
+-- 验证角色表
+SELECT * FROM sys_role;
 ```
 
-## ⚙️ 配置文件修改
+### 2. 后端服务启动
 
-### 1. 修改数据库配置
-编辑 `src/main/resources/application.yml`：
+#### 2.1 配置文件修改
+编辑 `backend/src/main/resources/application.yml`:
 
 ```yaml
+# 数据库配置
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/data_asset_security?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/data_asset_security?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: your_password  # 请修改为您的MySQL密码
-```
+    password: your_password  # 修改为你的MySQL密码
 
-### 2. 修改Redis配置
-```yaml
+  # Redis配置
   data:
     redis:
       host: localhost
       port: 6379
-      password:              # 如果Redis设置了密码，请填写
-      database: 0
-      timeout: 3000
-```
+      password:  # 如果有密码请配置
 
-### 3. 修改JWT配置
-```yaml
+# JWT配置
 jwt:
-  secret: your-secret-key-change-this-in-production  # 请修改为您的密钥
+  secret: data-asset-security-system-jwt-secret-key-2025  # 生产环境请修改
   expiration: 86400000  # 24小时
 ```
 
-## 🔨 项目构建
-
-### 1. 清理并编译项目
+#### 2.2 启动后端服务
 ```bash
-cd "/Users/wuxiucheng/分级分类/data-asset-security-system/backend"
+# 进入后端目录
+cd data-asset-security-system/backend
 
-# 清理之前的构建
-mvn clean
+# 清理并安装依赖
+mvn clean install
 
-# 编译项目
-mvn compile
-
-# 打包项目
-mvn package -DskipTests
-```
-
-### 2. 验证构建结果
-```bash
-# 查看target目录
-ls -lh target/
-
-# 查看jar包
-ls -lh target/*.jar
-```
-
-## 🚀 启动应用
-
-### 1. 启动后端服务
-```bash
-cd "/Users/wuxiucheng/分级分类/data-asset-security-system/backend"
-
-# 启动应用
-java -jar target/data-asset-security-1.0.0.jar
-
-# 或者使用Maven启动
+# 启动服务（开发模式）
 mvn spring-boot:run
+
+# 或者打包后启动
+mvn clean package
+java -jar target/data-asset-security-1.0.0.jar
 ```
 
-### 2. 验证启动成功
-当看到以下日志时，说明启动成功：
-```
-Started DataAssetSecurityApplication in X.XXX seconds
-Tomcat started on port(s): 8080 (http)
-```
-
-## 🌐 访问应用
-
-### 1. API文档访问
-- **Swagger UI**: http://localhost:8080/doc.html
-- **Knife4j UI**: http://localhost:8080/doc.html#/home
-
-### 2. 默认登录信息
-- **用户名**: admin
-- **密码**: admin123
-
-### 3. 测试API
-使用Postman或curl测试API接口：
-
+#### 2.3 验证后端服务
 ```bash
-# 测试登录接口
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "password": "admin123"
-  }'
+# 检查服务是否启动成功
+curl http://localhost:8080/api/actuator/health
 
-# 测试获取用户信息
-curl -X GET http://localhost:8080/api/user/info \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+# 访问API文档
+# 浏览器打开: http://localhost:8080/api/doc.html
 ```
 
-## 🐛 常见问题排查
+### 3. 前端应用启动
+
+#### 3.1 安装依赖
+```bash
+# 进入前端目录
+cd data-asset-security-system/frontend
+
+# 安装依赖
+npm install
+```
+
+#### 3.2 启动开发服务器
+```bash
+# 启动开发服务器
+npm run dev
+
+# 服务将在 http://localhost:5173 启动
+```
+
+#### 3.3 构建生产版本
+```bash
+# 构建生产版本
+npm run build
+
+# 构建产物在 dist 目录
+```
+
+### 4. 验证完整功能
+
+#### 4.1 测试登录功能
+1. 访问: `http://localhost:5173`
+2. 输入默认账号: `admin / admin123`
+3. 点击登录按钮
+4. 登录成功后跳转到首页
+
+#### 4.2 测试MFA功能
+1. 登录后访问MFA设置页面
+2. 点击"启用多因素认证"
+3. 下载Google Authenticator应用
+4. 扫描二维码
+5. 输入验证码确认设置
+6. 保存备用码
+
+#### 4.3 测试会话管理
+1. 访问会话管理页面
+2. 查看当前会话信息
+3. 查看活跃会话列表
+4. 测试强制下线功能
+
+#### 4.4 测试审计日志
+1. 访问审计日志页面
+2. 使用筛选条件查询日志
+3. 查看统计数据
+4. 测试导出功能
+
+## 🔧 常见问题解决
 
 ### 1. 数据库连接失败
-```bash
-# 检查MySQL服务状态
-brew services list | grep mysql
-
-# 启动MySQL服务
-brew services start mysql
-
-# 检查数据库是否存在
-mysql -u root -p -e "SHOW DATABASES LIKE 'data_asset_security';"
-```
+**问题**: `Communications link failure`
+**解决**:
+- 检查MySQL服务是否启动
+- 检查数据库地址和端口配置
+- 检查用户名和密码是否正确
+- 检查防火墙设置
 
 ### 2. Redis连接失败
-```bash
-# 检查Redis服务状态
-brew services list | grep redis
+**问题**: `Unable to connect to Redis`
+**解决**:
+- 检查Redis服务是否启动
+- 检查Redis地址和端口配置
+- 检查Redis密码配置
+- 检查Redis是否允许远程连接
 
-# 启动Redis服务
-brew services start redis
+### 3. 前端API调用失败
+**问题**: `Network Error` 或 `404 Not Found`
+**解决**:
+- 检查后端服务是否启动
+- 检查API地址配置
+- 检查CORS配置
+- 检查网络连接
 
-# 测试Redis连接
-redis-cli ping
-```
+### 4. MFA验证失败
+**问题**: 验证码总是显示错误
+**解决**:
+- 检查设备时间是否同步
+- 检查二维码是否扫描正确
+- 检查密钥是否正确
+- 尝试使用备用码
 
-### 3. 端口被占用
-```bash
-# 检查8080端口占用情况
-lsof -i :8080
+### 5. Token过期问题
+**问题**: 频繁要求重新登录
+**解决**:
+- 检查Token过期时间配置
+- 检查Token刷新机制
+- 检查本地存储是否正常
+- 检查网络连接
 
-# 如果端口被占用，可以修改application.yml中的端口
-server:
-  port: 8081  # 修改为其他端口
-```
-
-### 4. 编译错误
-```bash
-# 清理Maven缓存
-rm -rf ~/.m2/repository/com/dataasset
-
-# 重新编译
-mvn clean install -DskipTests
-```
-
-### 5. 内存不足
-```bash
-# 增加JVM内存
-java -Xms512m -Xmx1024m -jar target/data-asset-security-1.0.0.jar
-```
-
-## 📊 功能测试清单
-
-### 用户权限管理
-- [ ] 用户登录登出
-- [ ] 用户创建、编辑、删除
-- [ ] 用户状态管理
-- [ ] 角色创建、编辑、删除
-- [ ] 权限分配
-- [ ] 用户角色分配
-
-### 责任体系管理
-- [ ] 部门创建、编辑、删除
-- [ ] 部门树形结构
-- [ ] 责任人创建、编辑、删除
-- [ ] 组织架构导入导出
-
-### 数据分类分级管理
-- [ ] 分类标准创建、发布
-- [ ] 分级标准创建、发布
-- [ ] 数据分类管理
-- [ ] 数据分级管理
-- [ ] 分类分级查询
-
-### 数据资产管理
-- [ ] 数据资产注册
-- [ ] 数据资产查询
-- [ ] 数据资产编辑、删除
-- [ ] 字段管理
-- [ ] 批量导入导出
-
-### 审批流程管理
-- [ ] 流程定义创建
-- [ ] 流程实例启动
-- [ ] 审批任务处理
-- [ ] 审批历史查询
-
-### 统计分析
-- [ ] 资产统计概览
-- [ ] 分类分布统计
-- [ ] 分级分布统计
-- [ ] 趋势分析
-
-## 🔐 安全注意事项
-
-### 1. 修改默认密码
-```bash
-# 登录系统后立即修改admin密码
-# 建议使用强密码：包含大小写字母、数字、特殊字符
-```
-
-### 2. 修改JWT密钥
-```yaml
-# 在application.yml中修改jwt.secret
-jwt:
-  secret: your-very-secure-secret-key-here-change-in-production
-```
-
-### 3. 数据库安全
-```sql
--- 创建专用数据库用户
-CREATE USER 'dataasset_user'@'localhost' IDENTIFIED BY 'strong_password';
-
--- 授予必要权限
-GRANT SELECT, INSERT, UPDATE, DELETE ON data_asset_security.* TO 'dataasset_user'@'localhost';
-
--- 刷新权限
-FLUSH PRIVILEGES;
-```
-
-## 📈 性能调优
+## 📊 性能优化建议
 
 ### 1. 数据库优化
 ```sql
--- 查看慢查询
-SHOW VARIABLES LIKE 'slow_query%';
+-- 创建索引
+CREATE INDEX idx_username ON sys_user(username);
+CREATE INDEX idx_user_id ON auth_session(user_id);
+CREATE INDEX idx_operation_time ON auth_audit_log(operation_time);
 
--- 启用慢查询日志
-SET GLOBAL slow_query_log = 'ON';
-
--- 分析查询性能
-EXPLAIN SELECT * FROM data_asset WHERE asset_name LIKE '%test%';
+-- 定期清理过期数据
+DELETE FROM auth_session WHERE expire_time < NOW();
+DELETE FROM auth_token_blacklist WHERE expire_time < NOW();
 ```
 
-### 2. JVM调优
+### 2. Redis优化
 ```bash
-# 生产环境推荐配置
-java -Xms1g -Xmx2g \
-     -XX:+UseG1GC \
-     -XX:MaxGCPauseMillis=200 \
-     -XX:+HeapDumpOnOutOfMemoryError \
-     -jar target/data-asset-security-1.0.0.jar
+# 设置Redis最大内存
+redis-cli CONFIG SET maxmemory 1gb
+
+# 设置内存淘汰策略
+redis-cli CONFIG SET maxmemory-policy allkeys-lru
+
+# 查看内存使用情况
+redis-cli INFO memory
 ```
 
-### 3. 应用配置调优
+### 3. 应用优化
 ```yaml
+# application.yml
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false  # 日期格式优化
+
+server:
+  compression:
+    enabled: true  # 启用GZIP压缩
+
+logging:
+  level:
+    com.dataasset.security: info  # 生产环境日志级别
+```
+
+## 🔒 安全配置建议
+
+### 1. 生产环境配置
+```yaml
+# application-prod.yml
+jwt:
+  secret: ${JWT_SECRET:your-super-secret-key-change-in-production}
+  expiration: 3600000  # 1小时
+
 spring:
   datasource:
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+    password: ${DB_PASSWORD}
 ```
 
-## 📝 日志查看
-
-### 1. 应用日志
+### 2. 环境变量配置
 ```bash
-# 查看应用日志
-tail -f logs/application.log
-
-# 查看错误日志
-grep ERROR logs/application.log
-
-# 查看访问日志
-grep "POST\|GET\|PUT\|DELETE" logs/access.log
+# .env文件
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=data_asset_security
+DB_USERNAME=root
+DB_PASSWORD=your_password
+REDIS_HOST=localhost
+REDIS_PORT=6379
+JWT_SECRET=your-secret-key
 ```
 
-### 2. 审计日志
+### 3. 安全加固
+- 修改默认管理员密码
+- 配置HTTPS证书
+- 启用防火墙
+- 定期备份数据
+- 监控安全日志
+
+## 📈 监控和日志
+
+### 1. 应用监控
+```bash
+# 健康检查
+curl http://localhost:8080/api/actuator/health
+
+# 性能指标
+curl http://localhost:8080/api/actuator/metrics
+
+# 环境信息
+curl http://localhost:8080/api/actuator/env
+```
+
+### 2. 日志查看
+```bash
+# 应用日志
+tail -f backend/logs/application.log
+
+# 访问日志
+tail -f backend/logs/access.log
+
+# 错误日志
+tail -f backend/logs/error.log
+```
+
+### 3. 数据库监控
 ```sql
--- 查看审计日志
-SELECT * FROM audit_log ORDER BY operation_time DESC LIMIT 10;
+-- 查看连接数
+SHOW PROCESSLIST;
 
--- 按用户查询审计日志
-SELECT * FROM audit_log WHERE operator_id = 1 ORDER BY operation_time DESC;
+-- 查看表大小
+SELECT 
+    table_name,
+    ROUND(((data_length + index_length) / 1024 / 1024), 2) AS size_mb
+FROM information_schema.tables
+WHERE table_schema = 'data_asset_security'
+ORDER BY size_mb DESC;
 ```
 
-## 🔄 停止和重启
+## 🧪 测试指南
 
-### 1. 停止应用
+### 1. 单元测试
 ```bash
-# 查找Java进程
-ps aux | grep data-asset-security
+# 运行所有测试
+mvn test
 
-# 停止进程
-kill -9 <PID>
+# 运行特定测试类
+mvn test -Dtest=AuthServiceTest
 
-# 或者使用Ctrl+C停止（如果是命令行启动）
+# 查看测试报告
+mvn surefire-report:report
 ```
 
-### 2. 重启应用
+### 2. 集成测试
 ```bash
-# 停止旧进程
-kill -9 $(ps aux | grep data-asset-security | grep java | awk '{print $2}')
+# 运行集成测试
+mvn verify
 
-# 重新启动
-cd "/Users/wuxiucheng/分级分类/data-asset-security-system/backend"
-java -jar target/data-asset-security-1.0.0.jar
+# 使用测试配置文件
+mvn test -Dspring.profiles.active=test
 ```
 
-## 🎯 功能体验建议
+### 3. API测试
+```bash
+# 使用curl测试登录
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
 
-### 1. 按照业务流程体验
-1. 用户登录 → 修改密码
-2. 创建部门 → 创建责任人
-3. 创建分类标准 → 创建分类
-4. 创建分级标准 → 创建分级
-5. 注册数据资产 → 设置分类分级
-6. 查看统计数据
+# 使用Postman测试
+# 导入API文档中的接口进行测试
+```
 
-### 2. 测试核心功能
-- 测试数据资产的全生命周期管理
-- 测试分类分级的创建和分配
-- 测试责任体系的完整性
-- 测试审批流程的流转
+## 📝 维护指南
 
-### 3. 性能测试
-- 测试大数据量查询
-- 测试批量导入导出
-- 测试并发访问
+### 1. 日常维护
+- 定期检查系统日志
+- 监控数据库性能
+- 清理过期数据
+- 备份重要数据
+- 更新系统依赖
+
+### 2. 数据备份
+```bash
+# 数据库备份
+mysqldump -u root -p data_asset_security > backup_$(date +%Y%m%d).sql
+
+# Redis备份
+redis-cli --rdb /path/to/backup/dump_$(date +%Y%m%d).rdb
+
+# 应用配置备份
+cp application.yml application.yml.bak
+```
+
+### 3. 数据清理
+```sql
+-- 清理30天前的审计日志
+DELETE FROM auth_audit_log 
+WHERE operation_time < DATE_SUB(NOW(), INTERVAL 30 DAY);
+
+-- 清理已过期的会话
+DELETE FROM auth_session 
+WHERE expire_time < NOW();
+
+-- 清理已过期的Token黑名单
+DELETE FROM auth_token_blacklist 
+WHERE expire_time < NOW();
+```
+
+## 🚀 生产部署
+
+### 1. Docker部署
+```bash
+# 构建Docker镜像
+docker build -t data-asset-security:latest .
+
+# 使用Docker Compose启动
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+```
+
+### 2. 传统部署
+```bash
+# 停止旧服务
+./stop.sh
+
+# 备份旧版本
+mv data-asset-security.jar data-asset-security.jar.bak
+
+# 部署新版本
+cp target/data-asset-security-1.0.0.jar /opt/app/
+
+# 启动新服务
+./start.sh
+
+# 检查服务状态
+./status.sh
+```
+
+### 3. 负载均衡配置
+```nginx
+# nginx.conf示例
+upstream backend {
+    server 192.168.1.100:8080;
+    server 192.168.1.101:8080;
+    server 192.168.1.102:8080;
+}
+
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location /api/ {
+        proxy_pass http://backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
 
 ## 📞 技术支持
 
-如有问题，请查看：
-1. 项目总结文档：PROJECT_SUMMARY.md
-2. API文档：http://localhost:8080/doc.html
-3. 应用日志：logs/application.log
-4. 数据库日志：MySQL error log
+### 问题反馈
+- 提交Issue到项目仓库
+- 联系技术支持团队
+- 查看项目文档
+
+### 获取帮助
+- 阅读项目README
+- 查看API文档
+- 参考示例代码
 
 ---
 
-## 🎉 部署完成
+**文档版本**: v1.0
+**更新日期**: 2025-06-17
+**维护团队**: Data Asset Security Team
 
-恭喜！数据资产安全及分类分级管理系统已经本地部署完成！
-
-现在您可以：
-1. 访问 http://localhost:8080/doc.html 查看API文档
-2. 使用 admin/admin123 登录系统
-3. 开始体验各项功能
-4. 查看系统统计数据
-
-**部署状态：✅ 已完成**
-**系统状态：✅ 运行正常**
-
-开始您的数据资产安全管理之旅吧！🚀
+🎯 快速部署指南完成！

@@ -20,7 +20,7 @@ REMOTE_BACKEND_PATH="/root/data-asset-security/backend"
 
 # ===== 应用配置 =====
 APP_PORT="8080"  # 应用端口，可根据需要修改
-JVM_OPTS="-Xms512m -Xmx1024m"  # JVM参数
+JVM_OPTS="-Xms256m -Xmx512m"  # JVM参数（适配小内存环境）
 
 # ===== 检查是否只构建 =====
 BUILD_ONLY=false

@@ -43,3 +43,9 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Sensitive configuration files
+application-prod.yml
+application-prod.properties
+*-secret.yml
+*-secret.properties

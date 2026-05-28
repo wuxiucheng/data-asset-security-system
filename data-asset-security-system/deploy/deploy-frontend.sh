@@ -16,7 +16,7 @@ REMOTE_HOST="47.94.52.217"  # mysql-server-new
 REMOTE_PORT="22022"         # 请修改为实际SSH端口
 REMOTE_KEY="$HOME/.ssh/id_ed25519"  # 请修改为实际密钥路径
 REMOTE_PATH="/root/data-asset-security"
-REMOTE_FRONTEND_PATH="/root/data-asset-security/frontend"
+REMOTE_FRONTEND_PATH="/var/www/data-asset-security"  # Nginx配置的前端路径
 
 # ===== Step 1: build =====
 echo "📦 1. 进入前端目录"

@@ -19,7 +19,7 @@ REMOTE_PATH="/root/data-asset-security"
 REMOTE_BACKEND_PATH="/root/data-asset-security/backend"
 
 # ===== 应用配置 =====
-APP_PORT="8080"  # 应用端口，可根据需要修改
+APP_PORT="8082"  # 应用端口（Nginx配置中代理到此端口）
 JVM_OPTS="-Xms256m -Xmx512m"  # JVM参数（适配小内存环境）
 
 # ===== 检查是否只构建 =====

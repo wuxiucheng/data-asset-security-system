@@ -149,6 +149,17 @@ echo "启动新服务..."
 nohup java -Xms256m -Xmx512m -jar app.jar \
     --spring.profiles.active=prod \
     --server.port=8082 \
+    --spring.datasource.url="jdbc:mysql://localhost:3306/data_asset_security?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true" \
+    --spring.datasource.username="root" \
+    --spring.datasource.password="root" \
+    --spring.data.redis.host="localhost" \
+    --spring.data.redis.port="6379" \
+    --spring.data.redis.password="" \
+    --spring.rabbitmq.host="localhost" \
+    --spring.rabbitmq.port="5672" \
+    --spring.rabbitmq.username="guest" \
+    --spring.rabbitmq.password="guest" \
+    --jwt.secret="data-asset-security-jwt-secret-key-production-2026" \
     > app.log 2>&1 &
 echo $! > app.pid
 

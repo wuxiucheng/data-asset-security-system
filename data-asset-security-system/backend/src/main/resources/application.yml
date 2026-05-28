@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: data-asset-security
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   # 数据源配置
   datasource:

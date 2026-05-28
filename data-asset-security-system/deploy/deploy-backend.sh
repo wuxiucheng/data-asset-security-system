@@ -18,6 +18,10 @@ REMOTE_KEY="$HOME/.ssh/id_ed25519"  # 请修改为实际密钥路径
 REMOTE_PATH="/root/data-asset-security"
 REMOTE_BACKEND_PATH="/root/data-asset-security/backend"
 
+# ===== 应用配置 =====
+APP_PORT="8080"  # 应用端口，可根据需要修改
+JVM_OPTS="-Xms512m -Xmx1024m"  # JVM参数
+
 # ===== 检查是否只构建 =====
 BUILD_ONLY=false
 if [ "${1:-}" = "--build-only" ]; then
@@ -50,7 +54,7 @@ fi
 
 # ===== Step 3: 测试SSH连接 =====
 echo "🔌 4. 测试SSH连接"
-if ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -i "$REMOTE_KEY" -p "$REMOTE_PORT" "$REMOTE_USER@$REMOTE_HOST" "echo 'SSH连接成功'" 2>/dev/null; then
+if ! ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -i "$REMOTE_KEY" -p "$REMOTE_PORT" "$REMOTE_USER@$REMOTE_HOST" "echo 'SSH连接成功'" 2>/dev/null; then
     echo "❌ SSH连接失败"
     echo "   请检查以下配置:"
     echo "   - 服务器IP: $REMOTE_HOST"
@@ -75,28 +79,60 @@ set -euo pipefail
 echo "📁 创建后端目录"
 mkdir -p $REMOTE_BACKEND_PATH
 
+echo "🔍 检查Java环境"
+JAVA_VERSION=\$(java -version 2>&1 | head -1 | awk -F '"' '{print \$2}')
+echo "Java版本: \$JAVA_VERSION"
+
+echo "🔍 检查端口占用"
+if netstat -tlnp 2>/dev/null | grep -q ":$APP_PORT "; then
+    echo "⚠️  端口 $APP_PORT 已被占用"
+    netstat -tlnp 2>/dev/null | grep ":$APP_PORT "
+    echo "尝试停止占用进程..."
+    PID=\$(netstat -tlnp 2>/dev/null | grep ":$APP_PORT " | awk '{print \$7}' | cut -d'/' -f1)
+    if [ -n "\$PID" ]; then
+        kill -9 \$PID || true
+        sleep 2
+    fi
+fi
+
 echo "🚀 部署后端服务"
 
 # 停止旧服务
 if [ -f "$REMOTE_BACKEND_PATH/app.pid" ]; then
     echo "🛑 停止旧服务"
-    kill \$(cat $REMOTE_BACKEND_PATH/app.pid) || true
+    OLD_PID=\$(cat $REMOTE_BACKEND_PATH/app.pid)
+    if ps -p \$OLD_PID > /dev/null 2>&1; then
+        kill \$OLD_PID || true
+        sleep 3
+    fi
     rm -f $REMOTE_BACKEND_PATH/app.pid
 fi
 
 # 启动新服务
 echo "🚀 启动新服务"
 cd $REMOTE_BACKEND_PATH
-nohup java -jar app.jar --spring.profiles.active=prod > app.log 2>&1 &
+nohup java $JVM_OPTS -jar app.jar \
+    --spring.profiles.active=prod \
+    --server.port=$APP_PORT \
+    > app.log 2>&1 &
 echo \$! > app.pid
 
 echo "⏳ 等待服务启动"
-sleep 10
+sleep 15
 
 # 检查服务状态
-if ps -p \$(cat app.pid) > /dev/null; then
+if ps -p \$(cat app.pid) > /dev/null 2>&1; then
     echo "✅ 后端服务启动成功"
     echo "📊 PID: \$(cat app.pid)"
+    echo "🌐 端口: $APP_PORT"
+
+    # 检查端口是否监听
+    sleep 5
+    if netstat -tlnp 2>/dev/null | grep -q ":$APP_PORT "; then
+        echo "✅ 端口 $APP_PORT 正在监听"
+    else
+        echo "⚠️  端口 $APP_PORT 未监听，请检查日志"
+    fi
 else
     echo "❌ 后端服务启动失败"
     echo "📄 查看日志: tail -100 $REMOTE_BACKEND_PATH/app.log"
@@ -105,4 +141,4 @@ fi
 EOF
 
 echo "✅ 部署完成"
-echo "🌐 API地址: http://$REMOTE_HOST:8080"
+echo "🌐 API地址: http://$REMOTE_HOST:$APP_PORT"

@@ -5,6 +5,21 @@ set -euo pipefail
 # 🚀 智能部署脚本 - 支持增量更新
 # =========================
 
+# ===== 加载配置文件 =====
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/.env.deploy"
+
+if [ -f "$ENV_FILE" ]; then
+    # 加载配置文件
+    set -a
+    source "$ENV_FILE"
+    set +a
+else
+    echo "⚠️  配置文件不存在: $ENV_FILE"
+    echo "请复制 .env.deploy.example 并修改配置"
+    exit 1
+fi
+
 # ===== 配置 =====
 REMOTE_USER="root"
 REMOTE_HOST="47.94.52.217"
@@ -146,20 +161,20 @@ fi
 
 # 启动新服务
 echo "启动新服务..."
-nohup java -Xms256m -Xmx512m -jar app.jar \
+nohup java $JVM_OPTS -jar app.jar \
     --spring.profiles.active=prod \
-    --server.port=8082 \
-    --spring.datasource.url="jdbc:mysql://localhost:3306/data_asset_security?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true" \
-    --spring.datasource.username="root" \
-    --spring.datasource.password="root" \
-    --spring.data.redis.host="localhost" \
-    --spring.data.redis.port="6379" \
-    --spring.data.redis.password="" \
-    --spring.rabbitmq.host="localhost" \
-    --spring.rabbitmq.port="5672" \
-    --spring.rabbitmq.username="guest" \
-    --spring.rabbitmq.password="guest" \
-    --jwt.secret="data-asset-security-jwt-secret-key-production-2026" \
+    --server.port=$SERVER_PORT \
+    --spring.datasource.url="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true" \
+    --spring.datasource.username="$DB_USERNAME" \
+    --spring.datasource.password="$DB_PASSWORD" \
+    --spring.data.redis.host="$REDIS_HOST" \
+    --spring.data.redis.port="$REDIS_PORT" \
+    --spring.data.redis.password="$REDIS_PASSWORD" \
+    --spring.rabbitmq.host="$RABBITMQ_HOST" \
+    --spring.rabbitmq.port="$RABBITMQ_PORT" \
+    --spring.rabbitmq.username="$RABBITMQ_USERNAME" \
+    --spring.rabbitmq.password="$RABBITMQ_PASSWORD" \
+    --jwt.secret="$JWT_SECRET" \
     > app.log 2>&1 &
 echo $! > app.pid
 

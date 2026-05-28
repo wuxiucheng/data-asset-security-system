@@ -49,3 +49,7 @@ application-prod.yml
 application-prod.properties
 *-secret.yml
 *-secret.properties
+
+# Development documentation (optional - uncomment if needed)
+# docs/development/
+# docs/archived/

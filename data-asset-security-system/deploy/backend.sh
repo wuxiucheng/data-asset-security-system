@@ -144,16 +144,16 @@ update_config() {
 # ===== 重启服务 =====
 restart_service() {
     echo -e "${YELLOW}重启后端服务...${NC}"
-    ssh_cmd bash <<'EOF'
+    ssh_cmd bash <<EOF
 set -e
 cd /root/data-asset-security/backend
 
 # 停止旧服务
 if [ -f app.pid ]; then
-    OLD_PID=$(cat app.pid)
-    if ps -p $OLD_PID > /dev/null 2>&1; then
-        echo "停止旧服务 (PID: $OLD_PID)"
-        kill $OLD_PID
+    OLD_PID=\$(cat app.pid)
+    if ps -p \$OLD_PID > /dev/null 2>&1; then
+        echo "停止旧服务 (PID: \$OLD_PID)"
+        kill \$OLD_PID
         sleep 3
     fi
     rm -f app.pid
@@ -175,14 +175,15 @@ nohup java $JVM_OPTS -jar app.jar \
     --spring.rabbitmq.username="$RABBITMQ_USERNAME" \
     --spring.rabbitmq.password="$RABBITMQ_PASSWORD" \
     --jwt.secret="$JWT_SECRET" \
+    --flowable.database-schema-update=$FLOWABLE_DATABASE_SCHEMA_UPDATE \
     > app.log 2>&1 &
-echo $! > app.pid
+echo \$! > app.pid
 
 sleep 5
 
 # 检查状态
-if ps -p $(cat app.pid) > /dev/null 2>&1; then
-    echo "✅ 服务启动成功 (PID: $(cat app.pid))"
+if ps -p \$(cat app.pid) > /dev/null 2>&1; then
+    echo "✅ 服务启动成功 (PID: \$(cat app.pid))"
 else
     echo "❌ 服务启动失败"
     tail -50 app.log

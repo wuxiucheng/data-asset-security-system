@@ -7,7 +7,7 @@ set -euo pipefail
 
 # ===== 远程配置 =====
 REMOTE_USER="root"
-REMOTE_HOST="47.94.52.27"
+REMOTE_HOST="47.94.52.217"  # mysql-server-new
 REMOTE_PORT="22022"
 REMOTE_KEY="$HOME/.ssh/id_ed25519"
 

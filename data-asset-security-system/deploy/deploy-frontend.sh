@@ -12,7 +12,7 @@ BUILD_DIR="dist"
 
 # ===== 远程配置 =====
 REMOTE_USER="root"
-REMOTE_HOST="47.94.52.27"  # 请修改为实际服务器IP
+REMOTE_HOST="47.94.52.217"  # mysql-server-new
 REMOTE_PORT="22022"         # 请修改为实际SSH端口
 REMOTE_KEY="$HOME/.ssh/id_ed25519"  # 请修改为实际密钥路径
 REMOTE_PATH="/root/data-asset-security"

@@ -185,6 +185,24 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/quality-task/index.vue'),
         meta: { title: '质量任务', requiresAuth: true },
       },
+      {
+        path: 'approval-definition',
+        name: 'ApprovalDefinition',
+        component: () => import('@/views/approval-definition/index.vue'),
+        meta: { title: '流程定义', requiresAuth: true },
+      },
+      {
+        path: 'approval-instance',
+        name: 'ApprovalInstance',
+        component: () => import('@/views/approval-instance/index.vue'),
+        meta: { title: '流程实例', requiresAuth: true },
+      },
+      {
+        path: 'approval-task',
+        name: 'ApprovalTask',
+        component: () => import('@/views/approval-task/index.vue'),
+        meta: { title: '审批任务', requiresAuth: true },
+      },
     ],
   },
 ]

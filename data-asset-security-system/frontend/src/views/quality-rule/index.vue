@@ -17,7 +17,7 @@
           <el-input v-model="searchForm.name" placeholder="请输入规则名称" clearable />
         </el-form-item>
         <el-form-item label="规则类型">
-          <el-select v-model="searchForm.type" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.type" placeholder="请选择" clearable style="width: 150px">
             <el-option label="全部" value="" />
             <el-option label="完整性" value="completeness" />
             <el-option label="唯一性" value="uniqueness" />
@@ -27,7 +27,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.status" placeholder="请选择" clearable style="width: 150px">
             <el-option label="全部" value="" />
             <el-option label="启用" value="active" />
             <el-option label="禁用" value="inactive" />
@@ -100,7 +100,7 @@
           <el-input v-model="form.name" placeholder="请输入规则名称" />
         </el-form-item>
         <el-form-item label="规则类型" prop="type">
-          <el-select v-model="form.type" placeholder="请选择规则类型" style="width: 100%">
+          <el-select v-model="form.type" placeholder="请选择规则类型" style="width: 100%" @change="handleTypeChange">
             <el-option label="完整性" value="completeness" />
             <el-option label="唯一性" value="uniqueness" />
             <el-option label="准确性" value="accuracy" />
@@ -353,6 +353,40 @@ const handleSubmit = async () => {
     dialogVisible.value = false
   } catch (error) {
     // 表单验证失败
+  }
+}
+
+// 自动填充默认值
+const handleTypeChange = (type: string) => {
+  // 根据规则类型自动设置默认值
+  const defaults: Record<string, any> = {
+    completeness: {
+      condition: 'IS NOT NULL',
+      description: '检查字段是否为空，确保数据完整性'
+    },
+    uniqueness: {
+      condition: 'COUNT(DISTINCT) = COUNT(*)',
+      description: '检查字段值是否唯一，确保无重复数据'
+    },
+    accuracy: {
+      condition: 'REGEXP: ',
+      description: '检查字段值是否符合指定格式，确保数据准确性'
+    },
+    consistency: {
+      condition: 'VALUE IN (allowed_values)',
+      description: '检查字段值是否在允许范围内，确保数据一致性'
+    },
+    timeliness: {
+      condition: 'TIMESTAMP >= threshold',
+      description: '检查数据是否在有效期内，确保数据时效性'
+    }
+  }
+
+  if (defaults[type] && !form.id) {
+    form.condition = defaults[type].condition
+    if (!form.description) {
+      form.description = defaults[type].description
+    }
   }
 }
 

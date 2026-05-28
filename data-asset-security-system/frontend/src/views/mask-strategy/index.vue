@@ -17,7 +17,7 @@
           <el-input v-model="searchForm.name" placeholder="请输入策略名称" clearable />
         </el-form-item>
         <el-form-item label="脱敏类型">
-          <el-select v-model="searchForm.type" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.type" placeholder="请选择" clearable style="width: 150px">
             <el-option label="全部" value="" />
             <el-option label="手机号" value="phone" />
             <el-option label="身份证" value="idcard" />
@@ -28,7 +28,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.status" placeholder="请选择" clearable style="width: 150px">
             <el-option label="全部" value="" />
             <el-option label="启用" value="active" />
             <el-option label="禁用" value="inactive" />
@@ -100,7 +100,7 @@
           <el-input v-model="form.name" placeholder="请输入策略名称" />
         </el-form-item>
         <el-form-item label="脱敏类型" prop="type">
-          <el-select v-model="form.type" placeholder="请选择脱敏类型" style="width: 100%">
+          <el-select v-model="form.type" placeholder="请选择脱敏类型" style="width: 100%" @change="handleTypeChange">
             <el-option label="手机号" value="phone" />
             <el-option label="身份证" value="idcard" />
             <el-option label="邮箱" value="email" />
@@ -111,7 +111,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="脱敏算法" prop="algorithm">
-          <el-select v-model="form.algorithm" placeholder="请选择脱敏算法" style="width: 100%">
+          <el-select v-model="form.algorithm" placeholder="请选择脱敏算法" style="width: 100%" @change="handleAlgorithmChange">
             <el-option label="部分遮盖" value="partial" />
             <el-option label="完全遮盖" value="full" />
             <el-option label="哈希脱敏" value="hash" />
@@ -399,6 +399,41 @@ const handleSubmit = async () => {
     dialogVisible.value = false
   } catch (error) {
     // 表单验证失败
+  }
+}
+
+// 自动填充默认值
+const handleTypeChange = (type: string) => {
+  // 根据脱敏类型自动设置默认值
+  const defaults: Record<string, any> = {
+    phone: { rule: '3,4', description: '保留前3位和后4位，中间用*替换' },
+    idcard: { rule: '6,4', description: '保留前6位和后4位，中间用*替换' },
+    email: { rule: '3,@', description: '保留前3位和@后的域名部分' },
+    bankcard: { rule: '4,4', description: '保留前4位和后4位，中间用*替换' },
+    name: { rule: '1,0', description: '保留姓氏，名字用*替换' },
+    address: { rule: '6,0', description: '保留前6位，后面用*替换' }
+  }
+
+  if (defaults[type] && !form.id) {
+    form.rule = defaults[type].rule
+    if (!form.description) {
+      form.description = defaults[type].description
+    }
+  }
+}
+
+const handleAlgorithmChange = (algorithm: string) => {
+  // 根据脱敏算法自动设置默认描述
+  const descriptions: Record<string, string> = {
+    partial: '部分遮盖：保留部分字符，其余用*替换',
+    full: '完全遮盖：所有字符用*替换',
+    hash: '哈希脱敏：使用哈希算法转换数据',
+    random: '随机替换：用随机字符替换原数据',
+    regex: '正则替换：使用正则表达式匹配替换'
+  }
+
+  if (!form.description && !form.id) {
+    form.description = descriptions[algorithm] || ''
   }
 }
 

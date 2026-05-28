@@ -297,9 +297,14 @@ export const userApi = {
     return http.delete(`/user/delete/${userId}`)
   },
 
-  // 修改密码
+  // 修改密码（用户修改自己的密码）
   changePassword(data: any) {
     return http.post('/auth/changePassword', data)
+  },
+
+  // 重置密码（管理员重置用户密码）
+  resetPassword(userId: number, newPassword: string) {
+    return http.put(`/user/${userId}/reset-password?newPassword=${newPassword}`)
   },
 }
 

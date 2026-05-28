@@ -265,10 +265,7 @@ const handleResetPassword = async (row: User) => {
       type: 'warning',
     })
 
-    await userApi.changePassword({
-      userId: row.userId,
-      newPassword: '123456',
-    })
+    await userApi.resetPassword(row.userId, '123456')
 
     ElMessage.success('重置密码成功，新密码为：123456')
   } catch (error) {

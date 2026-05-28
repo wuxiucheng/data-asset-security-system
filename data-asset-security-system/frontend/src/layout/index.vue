@@ -70,6 +70,27 @@
           <el-menu-item index="/asset-field">字段管理</el-menu-item>
         </el-sub-menu>
 
+        <el-sub-menu index="governance">
+          <template #title>
+            <el-icon><Warning /></el-icon>
+            <span>数据治理</span>
+          </template>
+          <el-menu-item index="/sensitive-rule">敏感识别规则</el-menu-item>
+          <el-menu-item index="/mask-strategy">脱敏策略</el-menu-item>
+          <el-menu-item index="/quality-rule">质量规则</el-menu-item>
+          <el-menu-item index="/quality-task">质量探查任务</el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="approval">
+          <template #title>
+            <el-icon><Checked /></el-icon>
+            <span>审批流程</span>
+          </template>
+          <el-menu-item index="/approval-definition">流程定义</el-menu-item>
+          <el-menu-item index="/approval-instance">流程实例</el-menu-item>
+          <el-menu-item index="/approval-task">我的待办</el-menu-item>
+        </el-sub-menu>
+
         <el-sub-menu index="statistics">
           <template #title>
             <el-icon><DataAnalysis /></el-icon>
@@ -147,6 +168,8 @@ import {
   Lock,
   Monitor,
   DocumentChecked,
+  Warning,
+  Checked,
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 

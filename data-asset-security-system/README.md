@@ -152,41 +152,77 @@ cd frontend && npm install && npm run dev
 
 ## 核心功能
 
-### 1. 用户权限管理
+### 1. 用户权限管理 ✅
 - 用户管理（CRUD、状态管理、密码管理）
 - 角色管理（CRUD、权限分配、三权分立）
 - 权限管理（树形结构、菜单/按钮/API权限）
 - MFA多因素认证
 
-### 2. 责任体系管理
+### 2. 责任体系管理 ✅
 - 责任部门管理（树形结构）
 - 责任人管理
 - 组织架构同步
 
-### 3. 分类分级管理
+### 3. 分类分级管理 ✅
 - 分类标准管理（版本管理、发布控制）
 - 分类管理（树形结构、多级分类）
 - 分级标准管理（L1-L4分级体系）
 - 分级管理（安全要求、颜色标识）
 
-### 4. 数据资产管理
+### 4. 数据资产管理 ✅
 - 数据资产登记与查询
 - 数据字段管理
 - 字段级分类分级
 - 批量导入导出（CSV/Excel）
 - 资产发现（数据库连接扫描，支持MySQL/PostgreSQL）
+- 数据源配置管理
+- 数据条数刷新
 
-### 5. 审批流程管理
+### 5. 数据治理模块 ⚠️ (数据库表已创建,代码待实现)
+#### 5.1 数据质量探查
+- 质量规则定义（quality_rule表）
+- 质量探查任务（quality_probe_task表）
+- 质量探查结果（quality_probe_result表）
+- 质量告警（quality_alert表）
+
+#### 5.2 敏感数据识别
+- 敏感识别规则（sensitive_ident_rule表）
+- 敏感识别结果（sensitive_ident_result表）
+- 支持字段名匹配、正则表达式、样本匹配
+
+#### 5.3 数据脱敏
+- 脱敏策略（mask_strategy表）
+- 脱敏白名单（mask_whitelist表）
+- 支持多种脱敏算法：掩码、替换、哈希、加密、截断、打乱
+
+#### 5.4 数据血缘与影响分析
+- 血缘关系（lineage_relation表）
+- 影响分析（impact_analysis表）
+- 元数据版本（metadata_version表）
+
+#### 5.5 数据生命周期管理
+- 生命周期策略（lc_policy表）
+- 生命周期状态（lc_status表）
+
+#### 5.6 数据标准与合规
+- 数据标准（data_standard表）
+- 合规条款（compliance_clause表）
+- 合规评估结果（compliance_eval_result表）
+- 标准符合性结果（standard_compliance_result表）
+- 治理KPI（governance_kpi表）
+
+### 6. 审批流程管理 ⚠️ (数据库表已创建,代码待实现)
 - 审批流程定义（Flowable工作流）
 - 审批流程实例
+- 审批任务管理
 - 分类分级审批
 
-### 6. 统计分析
+### 7. 统计分析 ✅
 - 资产统计概览
 - 趋势分析
 - 报表导出
 
-### 7. 审计日志
+### 8. 审计日志 ✅
 - 操作审计日志记录
 - 日志查询与统计
 - 日志归档与清理
@@ -229,21 +265,77 @@ mysql -uroot -p1q2w3e4r < backend/sync-mock-data.sql
 
 ### 表结构
 
-系统共22张业务表，核心表包括：
+系统共40+张业务表（不含Flowable工作流表），核心表包括：
 
-| 表名 | 说明 | 初始数据 |
-|------|------|---------|
-| sys_user | 系统用户 | 4条 |
-| sys_role | 系统角色 | 5条 |
-| sys_permission | 系统权限 | 22条 |
-| department | 部门 | 5条 |
-| owner | 责任人 | 4条 |
-| classification_standard | 分类标准 | 2条 |
-| data_classification | 数据分类 | 5条 |
-| grading_standard | 分级标准 | 1条 |
-| data_grading | 数据分级 | 4条 |
-| data_asset | 数据资产 | 4条 |
-| data_field | 数据字段 | 3条 |
+#### 基础管理表（已实现）
+| 表名 | 说明 | 状态 |
+|------|------|------|
+| sys_user | 系统用户 | ✅ |
+| sys_role | 系统角色 | ✅ |
+| sys_permission | 系统权限 | ✅ |
+| sys_user_role | 用户角色关联 | ✅ |
+| sys_role_permission | 角色权限关联 | ✅ |
+| department | 责任部门 | ✅ |
+| owner | 责任人 | ✅ |
+| audit_log | 审计日志 | ✅ |
+
+#### 分类分级表（已实现）
+| 表名 | 说明 | 状态 |
+|------|------|------|
+| classification_standard | 分类标准 | ✅ |
+| data_classification | 数据分类 | ✅ |
+| grading_standard | 分级标准 | ✅ |
+| data_grading | 数据分级 | ✅ |
+
+#### 数据资产表（已实现）
+| 表名 | 说明 | 状态 |
+|------|------|------|
+| data_source_config | 数据源配置 | ✅ |
+| data_asset | 数据资产 | ✅ |
+| data_field | 数据字段 | ✅ |
+
+#### 数据治理表（数据库已创建，代码待实现）
+| 表名 | 说明 | 状态 |
+|------|------|------|
+| quality_rule | 质量规则 | ⚠️ 表已建 |
+| quality_probe_task | 质量探查任务 | ⚠️ 表已建 |
+| quality_probe_result | 质量探查结果 | ⚠️ 表已建 |
+| quality_alert | 质量告警 | ⚠️ 表已建 |
+| sensitive_ident_rule | 敏感识别规则 | ⚠️ 表已建 |
+| sensitive_ident_result | 敏感识别结果 | ⚠️ 表已建 |
+| mask_strategy | 脱敏策略 | ⚠️ 表已建 |
+| mask_whitelist | 脱敏白名单 | ⚠️ 表已建 |
+| lineage_relation | 血缘关系 | ⚠️ 表已建 |
+| impact_analysis | 影响分析 | ⚠️ 表已建 |
+| metadata_version | 元数据版本 | ⚠️ 表已建 |
+| lc_policy | 生命周期策略 | ⚠️ 表已建 |
+| lc_status | 生命周期状态 | ⚠️ 表已建 |
+| data_standard | 数据标准 | ⚠️ 表已建 |
+| compliance_clause | 合规条款 | ⚠️ 表已建 |
+| compliance_eval_result | 合规评估结果 | ⚠️ 表已建 |
+| standard_compliance_result | 标准符合性结果 | ⚠️ 表已建 |
+| governance_kpi | 治理KPI | ⚠️ 表已建 |
+
+#### 审批流程表（数据库已创建，代码待实现）
+| 表名 | 说明 | 状态 |
+|------|------|------|
+| approval_process_definition | 审批流程定义 | ⚠️ 表已建 |
+| approval_process_instance | 审批流程实例 | ⚠️ 表已建 |
+| approval_task | 审批任务 | ⚠️ 表已建 |
+
+#### 认证安全表（已实现）
+| 表名 | 说明 | 状态 |
+|------|------|------|
+| auth_session | 会话管理 | ✅ |
+| auth_token_blacklist | Token黑名单 | ✅ |
+| auth_mfa_config | MFA配置 | ✅ |
+| auth_account_lock | 账户锁定 | ✅ |
+| auth_login_log | 登录日志 | ✅ |
+| auth_audit_log | 认证审计 | ✅ |
+| auth_rate_limit_log | 限流日志 | ✅ |
+| auth_security_event | 安全事件 | ✅ |
+| auth_password_history | 密码历史 | ✅ |
+| auth_permission_log | 权限日志 | ✅ |
 
 ### BaseEntity公共字段
 

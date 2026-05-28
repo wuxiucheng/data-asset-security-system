@@ -959,3 +959,81 @@ export const dataSourceConfigApi = {
     return http.post('/datasource/test-connection', data)
   },
 }
+
+// ==================== 敏感数据识别 ====================
+
+export interface SensitiveIdentRule {
+  ruleId: number
+  ruleName: string
+  sensitiveType: string
+  matchMode: string
+  matchExpression: string
+  confidenceWeight: number
+  priority: number
+  isBuiltin: boolean
+  status: string
+  createdTime?: string
+  updatedTime?: string
+}
+
+export interface SensitiveIdentResult {
+  resultId: number
+  assetId: number
+  assetName?: string
+  fieldId: number
+  fieldName: string
+  ruleId: number
+  ruleName: string
+  sensitiveType: string
+  matchMode: string
+  confidenceScore: number
+  matchDetail?: string
+  identifyTime: string
+  confirmStatus: string
+  confirmerId?: number
+  confirmerName?: string
+  confirmTime?: string
+  confirmRemark?: string
+}
+
+export const sensitiveIdentApi = {
+  // 分页查询规则
+  getRulePage(params: any) {
+    return http.post('/sensitive-rule/page', params)
+  },
+
+  // 获取所有启用的规则
+  listEnabledRules() {
+    return http.get<SensitiveIdentRule[]>('/sensitive-rule/list')
+  },
+
+  // 获取规则详情
+  getRuleDetail(ruleId: number) {
+    return http.get<SensitiveIdentRule>(`/sensitive-rule/${ruleId}`)
+  },
+
+  // 创建规则
+  createRule(data: any) {
+    return http.post<SensitiveIdentRule>('/sensitive-rule', data)
+  },
+
+  // 更新规则
+  updateRule(data: any) {
+    return http.put<SensitiveIdentRule>('/sensitive-rule', data)
+  },
+
+  // 删除规则
+  deleteRule(ruleId: number) {
+    return http.delete(`/sensitive-rule/${ruleId}`)
+  },
+
+  // 启用/禁用规则
+  updateRuleStatus(ruleId: number, status: string) {
+    return http.put(`/sensitive-rule/${ruleId}/status?status=${status}`)
+  },
+
+  // 初始化内置规则
+  initBuiltinRules() {
+    return http.post('/sensitive-rule/init-builtin')
+  },
+}

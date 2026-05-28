@@ -161,6 +161,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/audit-log/index.vue'),
         meta: { title: '审计日志', requiresAuth: true },
       },
+      {
+        path: 'sensitive-rule',
+        name: 'SensitiveRule',
+        component: () => import('@/views/sensitive-rule/index.vue'),
+        meta: { title: '敏感识别规则', requiresAuth: true },
+      },
     ],
   },
 ]

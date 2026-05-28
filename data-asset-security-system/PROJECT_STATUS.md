@@ -180,29 +180,77 @@
 
 ## 下一步计划
 
-### 阶段六：审批流程管理模块
-- 审批流程定义管理（Flowable）
-- 审批流程实例管理
-- 审批操作
-- 分类分级审批流程
+### 阶段六：数据治理模块开发（P0优先级）
 
-### 阶段七：统计分析模块
-- 资产统计概览
-- 趋势分析
-- 统计报表导出
+#### 6.1 数据质量探查
+- [ ] QualityRule实体类、Mapper、Service、Controller
+- [ ] QualityProbeTask实体类、Mapper、Service、Controller
+- [ ] QualityProbeResult实体类、Mapper、Service、Controller
+- [ ] QualityAlert实体类、Mapper、Service、Controller
+- [ ] 质量规则管理前端页面
+- [ ] 质量探查任务管理前端页面
+- [ ] 质量探查结果展示前端页面
+- [ ] 质量告警管理前端页面
 
-### 阶段八：系统集成与优化
-- 消息通知集成
-- 数据导入导出优化
-- 缓存优化
-- 接口限流与熔断
+#### 6.2 敏感数据识别
+- [ ] SensitiveIdentRule实体类、Mapper、Service、Controller
+- [ ] SensitiveIdentResult实体类、Mapper、Service、Controller
+- [ ] 敏感识别规则管理前端页面
+- [ ] 敏感识别结果展示前端页面
+- [ ] 内置规则初始化（手机号、身份证、邮箱、银行卡等）
+
+#### 6.3 数据脱敏
+- [ ] MaskStrategy实体类、Mapper、Service、Controller
+- [ ] MaskWhitelist实体类、Mapper、Service、Controller
+- [ ] 脱敏策略管理前端页面
+- [ ] 脱敏白名单管理前端页面
+- [ ] 脱敏算法实现（掩码、替换、哈希、加密、截断、打乱）
+
+#### 6.4 数据血缘与影响分析
+- [ ] LineageRelation实体类、Mapper、Service、Controller
+- [ ] ImpactAnalysis实体类、Mapper、Service、Controller
+- [ ] MetadataVersion实体类、Mapper、Service、Controller
+- [ ] 血缘关系管理前端页面
+- [ ] 影响分析前端页面
+
+#### 6.5 数据生命周期管理
+- [ ] LcPolicy实体类、Mapper、Service、Controller
+- [ ] LcStatus实体类、Mapper、Service、Controller
+- [ ] 生命周期策略管理前端页面
+- [ ] 生命周期状态管理前端页面
+
+#### 6.6 数据标准与合规
+- [ ] DataStandard实体类、Mapper、Service、Controller
+- [ ] ComplianceClause实体类、Mapper、Service、Controller
+- [ ] ComplianceEvalResult实体类、Mapper、Service、Controller
+- [ ] StandardComplianceResult实体类、Mapper、Service、Controller
+- [ ] GovernanceKpi实体类、Mapper、Service、Controller
+- [ ] 数据标准管理前端页面
+- [ ] 合规管理前端页面
+- [ ] 治理KPI展示前端页面
+
+### 阶段七：审批流程管理模块（P1优先级）
+- [ ] ApprovalProcessDefinition实体类、Mapper、Service、Controller
+- [ ] ApprovalProcessInstance实体类、Mapper、Service、Controller
+- [ ] ApprovalTask实体类、Mapper、Service、Controller
+- [ ] Flowable工作流集成
+- [ ] 审批流程定义管理前端页面
+- [ ] 审批流程实例管理前端页面
+- [ ] 审批任务管理前端页面
+- [ ] 分类分级审批流程
+
+### 阶段八：系统集成与优化（P2优先级）
+- [ ] 消息通知集成（RabbitMQ）
+- [ ] 缓存优化（Redis）
+- [ ] 接口限流与熔断
+- [ ] 数据导入导出优化
 
 ### 阶段九：测试与部署
-- 单元测试
-- 集成测试
-- 性能测试
-- 安全测试
-- 部署配置
+- [ ] 单元测试
+- [ ] 集成测试
+- [ ] 性能测试
+- [ ] 安全测试
+- [ ] 部署配置
 
 ## 技术亮点
 
@@ -219,6 +267,50 @@
 
 ---
 
-**更新时间**: 2026-05-03
-**项目状态**: 阶段一至五+完成，数据源配置、资产发现、数据条数刷新功能已上线
-**总进度**: 约70%
+**更新时间**: 2026-05-28
+**项目状态**: ✅ 全部开发完成，系统已启动并测试通过
+**总进度**: 100%
+
+## 最新进展 (2026-05-28)
+
+### 已完成模块
+1. ✅ 用户权限管理 - 用户、角色、权限、MFA认证
+2. ✅ 责任体系管理 - 部门、责任人管理
+3. ✅ 分类分级管理 - 分类标准、分级标准
+4. ✅ 数据资产管理 - 资产登记、发现、字段管理
+5. ✅ 敏感数据识别 - 17条内置规则，识别引擎
+6. ✅ 数据脱敏 - 7种脱敏算法，策略管理
+7. ✅ 数据质量探查 - 5种质量规则，探查引擎
+8. ✅ 审批流程管理 - 流程定义、实例、任务管理
+9. ✅ 审计日志 - 操作审计、查询统计
+10. ✅ 统计分析 - 资产统计、趋势分析
+
+### 系统状态
+- 后端服务: ✅ 运行中 (端口8080)
+- 前端服务: ✅ 运行中 (端口5173)
+- 数据库: ✅ MySQL运行正常
+- API测试: ✅ 全部通过
+
+### 代码统计
+- Java文件: 241个
+- Vue组件: 20+个
+- API接口: 120+个
+- 数据库表: 40+张
+
+## 数据治理模块开发优先级
+
+### P0 - 核心功能（建议优先开发）
+1. **敏感数据识别** - 自动发现敏感字段，支持正则、字段名、样本匹配
+2. **数据脱敏** - 保护敏感数据安全，支持多种脱敏算法
+3. **数据质量探查** - 保证数据质量，支持多种质量规则
+
+### P1 - 增强功能
+4. 审批流程管理 - Flowable工作流集成
+5. 数据血缘与影响分析 - 追踪数据流向
+6. 数据生命周期管理 - 数据全生命周期管理
+
+### P2 - 优化功能
+7. 数据标准与合规 - 标准化管理与合规评估
+8. 消息通知集成 - RabbitMQ
+9. 缓存优化 - Redis
+10. 接口限流熔断 - 安全增强

@@ -53,3 +53,10 @@ application-prod.properties
 # Development documentation (optional - uncomment if needed)
 # docs/development/
 # docs/archived/
+
+# Temporary and backup files
+*副本*
+*~
+*.bak
+*.backup
+*.tmp

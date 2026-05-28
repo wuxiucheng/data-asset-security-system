@@ -308,6 +308,115 @@ export const userApi = {
   },
 }
 
+// 脱敏策略管理
+export const maskStrategyApi = {
+  // 获取策略列表
+  getList(params?: any) {
+    return http.get('/mask-strategy/list', { params })
+  },
+
+  // 获取策略详情
+  getDetail(id: number) {
+    return http.get(`/mask-strategy/${id}`)
+  },
+
+  // 新增策略
+  create(data: any) {
+    return http.post('/mask-strategy', data)
+  },
+
+  // 更新策略
+  update(id: number, data: any) {
+    return http.put(`/mask-strategy/${id}`, data)
+  },
+
+  // 删除策略
+  delete(id: number) {
+    return http.delete(`/mask-strategy/${id}`)
+  },
+
+  // 测试脱敏
+  test(id: number, data: any) {
+    return http.post(`/mask-strategy/${id}/test`, data)
+  }
+}
+
+// 质量规则管理
+export const qualityRuleApi = {
+  // 获取规则列表
+  getList(params?: any) {
+    return http.get('/quality-rule/list', { params })
+  },
+
+  // 获取规则详情
+  getDetail(id: number) {
+    return http.get(`/quality-rule/${id}`)
+  },
+
+  // 新增规则
+  create(data: any) {
+    return http.post('/quality-rule', data)
+  },
+
+  // 更新规则
+  update(id: number, data: any) {
+    return http.put(`/quality-rule/${id}`, data)
+  },
+
+  // 删除规则
+  delete(id: number) {
+    return http.delete(`/quality-rule/${id}`)
+  },
+
+  // 测试规则
+  test(id: number, data: any) {
+    return http.post(`/quality-rule/${id}/test`, data)
+  }
+}
+
+// 质量任务管理
+export const qualityTaskApi = {
+  // 获取任务列表
+  getList(params?: any) {
+    return http.get('/quality-task/list', { params })
+  },
+
+  // 获取任务详情
+  getDetail(id: number) {
+    return http.get(`/quality-task/${id}`)
+  },
+
+  // 新增任务
+  create(data: any) {
+    return http.post('/quality-task', data)
+  },
+
+  // 更新任务
+  update(id: number, data: any) {
+    return http.put(`/quality-task/${id}`, data)
+  },
+
+  // 删除任务
+  delete(id: number) {
+    return http.delete(`/quality-task/${id}`)
+  },
+
+  // 执行任务
+  execute(id: number) {
+    return http.post(`/quality-task/${id}/execute`)
+  },
+
+  // 停止任务
+  stop(id: number) {
+    return http.post(`/quality-task/${id}/stop`)
+  },
+
+  // 获取任务结果
+  getResult(id: number) {
+    return http.get(`/quality-task/${id}/result`)
+  }
+}
+
 // 角色管理
 export interface Role {
   roleId: number

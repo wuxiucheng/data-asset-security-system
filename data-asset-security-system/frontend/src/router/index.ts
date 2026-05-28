@@ -167,6 +167,24 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/sensitive-rule/index.vue'),
         meta: { title: '敏感识别规则', requiresAuth: true },
       },
+      {
+        path: 'mask-strategy',
+        name: 'MaskStrategy',
+        component: () => import('@/views/mask-strategy/index.vue'),
+        meta: { title: '脱敏策略', requiresAuth: true },
+      },
+      {
+        path: 'quality-rule',
+        name: 'QualityRule',
+        component: () => import('@/views/quality-rule/index.vue'),
+        meta: { title: '质量规则', requiresAuth: true },
+      },
+      {
+        path: 'quality-task',
+        name: 'QualityTask',
+        component: () => import('@/views/quality-task/index.vue'),
+        meta: { title: '质量任务', requiresAuth: true },
+      },
     ],
   },
 ]

@@ -3,39 +3,31 @@ set -euo pipefail
 
 # =========================
 # 🚀 一键部署全栈应用到远程服务器
-# 后端打包 → 前端构建 → 上传 → 远程部署
+# 使用智能部署脚本
 # =========================
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-
-# ===== 远程配置 =====
-REMOTE_USER="root"
-REMOTE_HOST="47.94.52.27"  # 请修改为实际服务器IP
-REMOTE_PORT="22022"         # 请修改为实际SSH端口
-REMOTE_KEY="$HOME/.ssh/id_ed25519"  # 请修改为实际密钥路径
-REMOTE_PATH="/root/data-asset-security"
 
 echo "=========================================="
 echo "  🚀 数据资产安全系统 - 一键部署"
 echo "=========================================="
 echo ""
-echo "📍 目标服务器: $REMOTE_USER@$REMOTE_HOST:$REMOTE_PORT"
-echo "📍 部署路径: $REMOTE_PATH"
+echo "📍 目标服务器: 47.94.52.217:22022"
+echo "📍 访问地址: http://47.94.52.217:8081"
 echo ""
 
 # ===== Step 1: 部署后端 =====
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📦 Step 1/2: 部署后端"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-"$SCRIPT_DIR/deploy-backend.sh"
+"$SCRIPT_DIR/backend.sh" full
 
 # ===== Step 2: 部署前端 =====
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📦 Step 2/2: 部署前端"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-"$SCRIPT_DIR/deploy-frontend.sh"
+"$SCRIPT_DIR/frontend.sh" full
 
 # ===== 完成 =====
 echo ""
@@ -43,7 +35,12 @@ echo "=========================================="
 echo "  ✅ 部署完成"
 echo "=========================================="
 echo ""
-echo "🌐 前端地址: http://$REMOTE_HOST"
-echo "🌐 API地址: http://$REMOTE_HOST:8080"
-echo "📚 API文档: http://$REMOTE_HOST:8080/api/doc.html"
+echo "🌐 前端地址: http://47.94.52.217:8081"
+echo "🌐 API地址: http://47.94.52.217:8081/api"
+echo "📚 API文档: http://47.94.52.217:8081/api/doc.html"
+echo ""
+echo "💡 提示："
+echo "  - 查看后端状态: ./backend.sh status"
+echo "  - 查看后端日志: ./backend.sh logs"
+echo "  - 重启后端: ./backend.sh restart"
 echo ""

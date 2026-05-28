@@ -417,6 +417,63 @@ export const qualityTaskApi = {
   }
 }
 
+// 审批流程定义
+export const approvalDefinitionApi = {
+  getList(params?: any) {
+    return http.get('/approval-definition/list', { params })
+  },
+  getDetail(id: number) {
+    return http.get(`/approval-definition/${id}`)
+  },
+  create(data: any) {
+    return http.post('/approval-definition', data)
+  },
+  update(id: number, data: any) {
+    return http.put(`/approval-definition/${id}`, data)
+  },
+  delete(id: number) {
+    return http.delete(`/approval-definition/${id}`)
+  },
+  publish(id: number) {
+    return http.post(`/approval-definition/${id}/publish`)
+  },
+  disable(id: number) {
+    return http.post(`/approval-definition/${id}/disable`)
+  }
+}
+
+// 审批流程实例
+export const approvalInstanceApi = {
+  getList(params?: any) {
+    return http.get('/approval-instance/list', { params })
+  },
+  getDetail(id: number) {
+    return http.get(`/approval-instance/${id}`)
+  },
+  cancel(id: number) {
+    return http.post(`/approval-instance/${id}/cancel`)
+  },
+  getTimeline(id: number) {
+    return http.get(`/approval-instance/${id}/timeline`)
+  }
+}
+
+// 审批任务
+export const approvalTaskApi = {
+  getList(params?: any) {
+    return http.get('/approval-task/list', { params })
+  },
+  getDetail(id: number) {
+    return http.get(`/approval-task/${id}`)
+  },
+  approve(id: number, data: any) {
+    return http.post(`/approval-task/${id}/approve`, data)
+  },
+  reject(id: number, data: any) {
+    return http.post(`/approval-task/${id}/reject`, data)
+  }
+}
+
 // 角色管理
 export interface Role {
   roleId: number

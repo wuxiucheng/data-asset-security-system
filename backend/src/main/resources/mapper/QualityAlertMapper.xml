@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dataasset.security.mapper.QualityAlertMapper">
+
+    <resultMap id="BaseResultMap" type="com.dataasset.security.entity.QualityAlert">
+        <id column="alert_id" property="alertId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="asset_id" property="assetId"/>
+        <result column="field_id" property="fieldId"/>
+        <result column="rule_id" property="ruleId"/>
+        <result column="alert_type" property="alertType"/>
+        <result column="alert_level" property="alertLevel"/>
+        <result column="alert_title" property="alertTitle"/>
+        <result column="alert_content" property="alertContent"/>
+        <result column="alert_status" property="alertStatus"/>
+        <result column="assignee_id" property="assigneeId"/>
+        <result column="resolved_time" property="resolvedTime"/>
+        <result column="resolved_remark" property="resolvedRemark"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updater_id" property="updaterId"/>
+        <result column="updated_time" property="updatedTime"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+</mapper>

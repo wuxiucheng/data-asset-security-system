@@ -1,0 +1,31 @@
+-- 完整建表SQL（从当前MySQL导出）
+-- 自动生成，包含所有BaseEntity公共字段
+
+USE data_asset_security;
+
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS owner;
+DROP TABLE IF EXISTS classification_standard;
+DROP TABLE IF EXISTS data_classification;
+DROP TABLE IF EXISTS grading_standard;
+DROP TABLE IF EXISTS data_grading;
+DROP TABLE IF EXISTS data_asset;
+DROP TABLE IF EXISTS data_field;
+SET FOREIGN_KEY_CHECKS = 1;
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dataasset.security.mapper.MaskWhitelistMapper">
+
+    <resultMap id="BaseResultMap" type="com.dataasset.security.entity.MaskWhitelist">
+        <id column="whitelist_id" property="whitelistId"/>
+        <result column="strategy_id" property="strategyId"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_id" property="roleId"/>
+        <result column="whitelist_type" property="whitelistType"/>
+        <result column="effective_start" property="effectiveStart"/>
+        <result column="effective_end" property="effectiveEnd"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updater_id" property="updaterId"/>
+        <result column="updated_time" property="updatedTime"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+</mapper>

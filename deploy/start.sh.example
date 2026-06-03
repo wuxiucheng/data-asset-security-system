@@ -1,0 +1,85 @@
+#!/bin/bash
+# =========================
+# Backend Service Start Script (Example)
+# =========================
+# Copy this file to start.sh and modify the values
+
+# 1. Set environment variables
+export JVM_OPTS="-Xms64m -Xmx128m"
+export SERVER_PORT=8082
+export DB_HOST=YOUR_DB_HOST_IP
+export DB_PORT=3306
+export DB_NAME=data_asset_security
+export DB_USERNAME=root
+export DB_PASSWORD='YOUR_DB_PASSWORD'
+export REDIS_HOST=localhost
+export REDIS_PORT=6379
+export REDIS_PASSWORD=""
+export RABBITMQ_HOST=localhost
+export RABBITMQ_PORT=5672
+export RABBITMQ_USERNAME=guest
+export RABBITMQ_PASSWORD=guest
+export JWT_SECRET="YOUR_JWT_SECRET_KEY"
+
+# 2. Build database URL
+export DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true"
+
+# 3. Change to application directory
+cd /root/data-asset-security/backend
+
+# 4. Stop old service if exists
+if [ -f app.pid ]; then
+    OLD_PID=$(cat app.pid)
+    if ps -p $OLD_PID > /dev/null 2>&1; then
+        echo "Stopping old service (PID: $OLD_PID)"
+        kill $OLD_PID
+        sleep 3
+    fi
+    rm -f app.pid
+fi
+
+# 5. Start new service
+echo "Starting new service..."
+echo "Database URL: $DB_URL"
+echo "Database User: $DB_USERNAME"
+echo "Application Port: $SERVER_PORT"
+echo "JVM Options: $JVM_OPTS"
+
+nohup java $JVM_OPTS -jar app.jar \
+    --spring.profiles.active=prod \
+    --server.port=$SERVER_PORT \
+    --spring.datasource.url="$DB_URL" \
+    --spring.datasource.username="$DB_USERNAME" \
+    --spring.datasource.password="$DB_PASSWORD" \
+    --spring.data.redis.host="$REDIS_HOST" \
+    --spring.data.redis.port="$REDIS_PORT" \
+    --spring.data.redis.password="$REDIS_PASSWORD" \
+    --spring.rabbitmq.host="$RABBITMQ_HOST" \
+    --spring.rabbitmq.port="$RABBITMQ_PORT" \
+    --spring.rabbitmq.username="$RABBITMQ_USERNAME" \
+    --spring.rabbitmq.password="$RABBITMQ_PASSWORD" \
+    --jwt.secret="$JWT_SECRET" \
+    --flowable.database-schema-update=false \
+    --flowable.async-executor-activate=false \
+    > app.log 2>&1 &
+
+echo $! > app.pid
+
+# 6. Wait and check
+sleep 10
+if ps -p $(cat app.pid) > /dev/null 2>&1; then
+    echo "=========================================="
+    echo "  Service started successfully!"
+    echo "=========================================="
+    echo "PID: $(cat app.pid)"
+    echo "Port: $SERVER_PORT"
+    echo "Log: /root/data-asset-security/backend/app.log"
+    echo ""
+    netstat -tlnp | grep ":$SERVER_PORT "
+else
+    echo "=========================================="
+    echo "  Service start failed!"
+    echo "=========================================="
+    echo "Check log file:"
+    tail -50 app.log
+fi
